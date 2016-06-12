@@ -3,11 +3,14 @@
 
     <group
         android:id="@+id/top_group"
-        android:checkableBehavior="single">
+        android:checkableBehavior="single"
+        >
     <item
     android:id="@+id/item_msg"
     android:icon="@mipmap/topmenu_icn_msg"
-    android:title="我的消息" />
+    android:title="我的消息"
+
+        />
     <item
     android:id="@+id/item_store"
     android:icon="@mipmap/topmenu_icn_store"
