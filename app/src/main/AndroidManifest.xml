@@ -2,11 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.stest.neteasycloud">
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/logo"
+        android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/SplashTheme">
+
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -15,17 +19,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".nouse_now"
             android:label="@string/app_name"
             android:theme="@style/ImageTranslucentTheme" />
         <activity
-            android:name=".MusicActivity"
-            android:label="@string/app_name"
-            android:theme="@style/AppTheme" />
-        <activity
             android:name=".selected_MainActivity"
             android:label="@string/title_activity_selected__main"
-            android:theme="@style/SplashTheme"></activity>
+           />
+        <activity android:name=".PlayTheMusic"
+            />
+        <activity android:name=".local_music_listActivity"></activity>
+        <service android:name="com.stest.Service.PlayService"></service>
     </application>
 
 </manifest>

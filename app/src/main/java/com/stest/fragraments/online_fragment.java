@@ -15,15 +15,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
-import com.lidroid.xutils.view.annotation.ViewInject;
 import com.stest.adapter.AnchorAdapter;
-import com.stest.adapter.MainPopAdapter;
 import com.stest.adapter.MyrankAdapter;
 import com.stest.neteasycloud.R;
 
@@ -43,18 +39,17 @@ import java.util.Random;
  * Use the {@link online_fragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class online_fragment extends Fragment  implements View.OnClickListener{
+public class online_fragment extends Fragment implements View.OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private ViewPager view_pager;
     private TabLayout tabLayout;
-    private ImageView play_btn;
-    private LinearLayout bottom_music_more;
+
     private ImageButton daily_btn;
     private TextView daily_text;
-    private boolean isChanged = true;
+
     private ImageView anim_image;
     private boolean isClick = false;
     //存放每个Pager的View
@@ -66,23 +61,21 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
     private View anchor;
     private View ranking;
     //底部弹出视图
-    private View popView;
-    private PopupWindow popupWindow;
+
     private Date date;
     private SimpleDateFormat dateFm;
     private AnimationDrawable animationDrawable;
     //排行榜布局
     private ListView listView;
-    //弹出视图ListView
-    private ListView popListView;
+
     //精彩节目推荐
     private ListView anchorListView;
     private int[] imageIds = new int[]{R.drawable.ranklist_first, R.drawable.ranklist_second, R.drawable.ranklist_third,
             R.drawable.ranklist_fourth, R.drawable.ranklist_five, R.drawable.ranklist_six};
     private List<Map<String, Object>> mInfos = new ArrayList<>();
-    private List<Map<String, Object>> popInfos = new ArrayList<>();
+
     private List<Map<String, Object>> anchorInfos = new ArrayList<>();
-    private String[] Songs=new String[]{"知足-","倔强-","我不愿让你一个人-","干杯-","宠上天-","突然好想你-","星空-","如烟-","第二人生-"};
+
     private String[] teams = new String[]{"五月天", "苏打绿", "信乐团", "飞儿乐队", "凤凰传奇", "纵贯线",};
     private String[] places = new String[]{"上海演唱会", "香港红馆演唱会", "台湾火力全开演唱会", "北京鸟巢演唱会"};
 
@@ -119,9 +112,9 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        myview=inflater.inflate(R.layout.fragment_online_fragment, container, false);
+        myview = inflater.inflate(R.layout.fragment_online_fragment, container, false);
         ViewUtils.inject(getActivity());//视图注入
-        myinflater=inflater;
+        myinflater = inflater;
         initWidget();
         addView();
         initEvent();
@@ -165,39 +158,27 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
     }
 
     private void initWidget() {
-        myAcitivty=getActivity();
-        tabLayout=(TabLayout) myview.findViewById(R.id.tabs);
-        play_btn=(ImageView)myview.findViewById(R.id.play_btn) ;
-        bottom_music_more=(LinearLayout) myview.findViewById(R.id.bottom_music_more);
+        myAcitivty = getActivity();
+        tabLayout = (TabLayout) myview.findViewById(R.id.tabs);
+
 
         recommend = myinflater.inflate(R.layout.recommend, null);
         list = myinflater.inflate(R.layout.list, null);
         anchor = myinflater.inflate(R.layout.anchor, null);
         ranking = myinflater.inflate(R.layout.ranking, null);
-        popView = myinflater.inflate(R.layout.main_pop, null);
-        view_pager=(ViewPager)myview.findViewById(R.id.view_pager_in_online);
+
+        view_pager = (ViewPager) myview.findViewById(R.id.view_pager_in_online);
         view_pager.setOffscreenPageLimit(2);
         daily_text = (TextView) recommend.findViewById(R.id.daily_text);
         daily_btn = (ImageButton) recommend.findViewById(R.id.daily_btn);
         anim_image = (ImageView) list.findViewById(R.id.anim_image);
         listView = (ListView) ranking.findViewById(R.id.listView);
-        popListView = (ListView) popView.findViewById(R.id.main_pop_listview);
+
         anchorListView = (ListView) anchor.findViewById(R.id.anchor_list_view);
         daily_btn.setOnClickListener(this);
-        play_btn.setOnClickListener(this);
-        bottom_music_more.setOnClickListener(this);
+
 
         //自适配长、框设置
-        popupWindow = new PopupWindow(popView, ViewPager.LayoutParams.MATCH_PARENT,
-                ViewPager.LayoutParams.MATCH_PARENT);
-        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.color.white));
-        popupWindow.setOutsideTouchable(true);
-        //刷新状态
-        popupWindow.update();
-        popupWindow.setTouchable(true);
-        //这样点击返回键也能消失
-        popupWindow.setFocusable(true);
-        popupWindow.setAnimationStyle(R.style.anim_menu_bottombar);
 
 
         mViewList = new ArrayList<>();
@@ -215,19 +196,11 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
             mInfos.add(item);
         }
         listView.setAdapter(new MyrankAdapter(myAcitivty, mInfos));
-        //加载PopWindow布局
-        for (int i = 0; i < 15; i++) {
-            Map<String, Object> item = new HashMap<>();
-            item.put("imageView", R.mipmap.list_icn_delete);
-            item.put("txt_author", "五月天");
-            item.put("txt_name", Songs[new Random().nextInt(9)]);
-            popInfos.add(item);
-        }
-        popListView.setAdapter(new MainPopAdapter(myAcitivty, popInfos));
+
         //加载主播电台布局
         for (int i = 1; i < 15; i++) {
             Map<String, Object> item = new HashMap<>();
-            item.put("imageView",R.mipmap.list_fourth);
+            item.put("imageView", R.mipmap.list_fourth);
             item.put("txt_team", teams[new Random().nextInt(5)]);
             item.put("txt_place", places[new Random().nextInt(4)]);
             anchorInfos.add(item);
@@ -235,6 +208,7 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
         anchorListView.setAdapter(new AnchorAdapter(myAcitivty, anchorInfos));
 
     }
+
     private void addView() {
         mViewList.add(recommend);
         mViewList.add(list);
@@ -254,6 +228,7 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
         tabLayout.addTab(tabLayout.newTab().setText(mTitleList.get(2)));
         tabLayout.addTab(tabLayout.newTab().setText(mTitleList.get(3)));
     }
+
     private String getDate() {
         date = new Date();
         dateFm = new SimpleDateFormat("dd");
@@ -285,18 +260,8 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
 
     @Override
     public void onClick(View view) {
-        switch (view.getId())
-        {
-            case R.id.play_btn:
-                if (isChanged) {
-                    play_btn.setBackground(null);
-                    play_btn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-                } else {
-                    play_btn.setImageDrawable(getResources().getDrawable(R.drawable.play_btn));
-                    play_btn.setBackground(getResources().getDrawable(R.drawable.list_bg));
-                }
-                isChanged = !isChanged;
-                break;
+        switch (view.getId()) {
+
             case R.id.daily_btn:
                 if (!isClick) {
                     daily_btn.setBackground(getResources().getDrawable(R.drawable.dailly_prs));
@@ -307,12 +272,7 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
                     daily_text.setTextColor(Color.parseColor("#ffce3d3a"));
                     isClick = false;
                 }
-                break;
-            case R.id.bottom_music_more:
-                if (!popupWindow.isShowing()) {
-                    popupWindow.showAsDropDown(tabLayout, 0, 450);
-                }
-                break;
+
             default:
                 break;
         }
@@ -325,7 +285,7 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
      * fragment to allow an interaction in this fragment to be communicated
      * to the activity and potentially other fragments contained in that
      * activity.
-     * <p>
+     * <p/>
      * See the Android Training lesson <a href=
      * "http://developer.android.com/training/basics/fragments/communicating.html"
      * >Communicating with Other Fragments</a> for more information.
@@ -334,6 +294,7 @@ public class online_fragment extends Fragment  implements View.OnClickListener{
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
     class MyPagerAdapter extends PagerAdapter {
         private List<View> mViewList;
 

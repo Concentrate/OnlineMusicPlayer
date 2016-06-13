@@ -1,0 +1,10 @@
+[
+    {
+        "merged": "/home/ldy/AndroidStudioProjects/ImitateNetEasyCloud/playerview/build/intermediates/res/merged/androidTest/debug/drawable/icon_play.png",
+        "source": "/home/ldy/AndroidStudioProjects/ImitateNetEasyCloud/playerview/build/intermediates/bundles/debug/res/drawable/icon_play.png"
+    },
+    {
+        "merged": "/home/ldy/AndroidStudioProjects/ImitateNetEasyCloud/playerview/build/intermediates/res/merged/androidTest/debug/drawable/icon_pause.png",
+        "source": "/home/ldy/AndroidStudioProjects/ImitateNetEasyCloud/playerview/build/intermediates/bundles/debug/res/drawable/icon_pause.png"
+    }
+]

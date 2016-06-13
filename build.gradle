@@ -18,6 +18,12 @@ allprojects {
         maven {
             url "http://dl.bintray.com/glomadrian/maven"
         }
+
+    }
+    repositories {
+        maven {
+            url "https://jitpack.io"
+        }
     }
 }
 

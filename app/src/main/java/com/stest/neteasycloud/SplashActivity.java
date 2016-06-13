@@ -18,7 +18,7 @@ public class SplashActivity extends AppCompatActivity {
     private ImageView login_p;
     @ViewInject(R.id.login_layout)
     private RelativeLayout relativeLayout;
-    private static final int DELAY_TIME = 2000;
+    private static final int DELAY_TIME = 1000;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

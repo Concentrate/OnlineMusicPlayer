@@ -17,7 +17,7 @@
         android:layout_height="95dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="95dp"
-        android:background="@mipmap/login_logo"
+        android:background="@mipmap/ic_launcher"
         android:scaleType="fitCenter"
         android:visibility="visible" />
 

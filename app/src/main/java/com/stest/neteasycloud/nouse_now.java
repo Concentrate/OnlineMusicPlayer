@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class nouse_now extends AppCompatActivity implements View.OnClickListener {
     @ViewInject(R.id.navigation_view)
     private NavigationView mNavigationView;
     @ViewInject(R.id.tool_bar)
@@ -102,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         ViewUtils.inject(this);//视图注入
-        mLayoutInflater = LayoutInflater.from(MainActivity.this);
+        mLayoutInflater = LayoutInflater.from(nouse_now.this);
         recommend = mLayoutInflater.inflate(R.layout.recommend, null);
         list = mLayoutInflater.inflate(R.layout.list, null);
         anchor = mLayoutInflater.inflate(R.layout.anchor, null);

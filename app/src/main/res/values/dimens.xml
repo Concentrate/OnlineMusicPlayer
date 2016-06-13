@@ -5,4 +5,8 @@
     <dimen name="navigation_icon_size">30dp</dimen>
     <dimen name="music_itemsize">50dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="songitemsize">20sp</dimen>
+    <dimen name="playViewBottom">100dp</dimen>
+    <dimen name="bottom_item_size">30dp</dimen>
+    <dimen name="margin_bottom_up">15dp</dimen>
 </resources>

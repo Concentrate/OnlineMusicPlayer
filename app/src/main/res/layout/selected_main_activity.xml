@@ -79,12 +79,14 @@
         <com.stest.OtherhelperClass.NoSclideViewpager
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
+            android:layout_height="match_parent"
+            >
         </com.stest.OtherhelperClass.NoSclideViewpager>
 
 
     </LinearLayout>
+    <include layout="@layout/bottom_music_layout"
+        ></include>
 
 
     <android.support.design.widget.NavigationView
