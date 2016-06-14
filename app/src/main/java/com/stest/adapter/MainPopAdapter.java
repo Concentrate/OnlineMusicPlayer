@@ -60,13 +60,13 @@ public class MainPopAdapter extends BaseAdapter {
             listItemView.txt_name = (TextView) convertView.findViewById(R.id.txt_name);
             convertView.setTag(listItemView);
 
-            listItemView.imageView.setBackgroundResource((Integer) listItems.get(position).get("imageView"));
-            listItemView.txt_author.setText((String) listItems.get(position).get("txt_author"));
-            listItemView.txt_name.setText((String) listItems.get(position).get("txt_name"));
         } else {
             listItemView = (ListItemView) convertView.getTag();
         }
 
+        listItemView.imageView.setBackgroundResource((Integer) listItems.get(position).get("imageView"));
+        listItemView.txt_author.setText((String) listItems.get(position).get("txt_author"));
+        listItemView.txt_name.setText((String) listItems.get(position).get("txt_name"));
 
         return convertView;
     }

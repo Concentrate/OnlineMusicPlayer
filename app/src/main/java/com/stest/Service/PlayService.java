@@ -16,6 +16,7 @@ public class PlayService extends Service {
     private static final int PLAY_STOP = 3;
     private static final int PLAY_PAUSE = 2;
     private static final int PLAY_NEW_SONG = 1;
+    private static final int PLAY_CONTINUE=0;
     private String path;
     private boolean isPause;
     private MediaPlayer myMediaplayer = new MediaPlayer();
@@ -49,6 +50,13 @@ public class PlayService extends Service {
                 myMediaplayer.prepare();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }else if(msg==PLAY_CONTINUE)
+        {
+            if(myMediaplayer!=null&&isPause==true)
+            {
+                play(myMediaplayer.getCurrentPosition());
+                isPause=false;
             }
         }
 

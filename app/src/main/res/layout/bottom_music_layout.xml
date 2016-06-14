@@ -5,7 +5,7 @@
     android:layout_height="wrap_content">
 
     <LinearLayout
-        android:id="@+id/music_control"
+        android:id="@+id/music_to_showVIew_ll"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
@@ -14,6 +14,7 @@
 
         <ImageView
             android:layout_width="50dp"
+            android:id="@+id/song_picture"
             android:layout_height="match_parent"
             android:padding="3dp"
             android:scaleType="fitXY"
@@ -30,11 +31,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="60"
+                android:id="@+id/music_name"
                 android:text="思念是一种病"
                 android:textColor="#000000"
                 android:textSize="15sp" />
 
             <TextView
+                android:id="@+id/music_artist"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="40"
@@ -45,7 +48,6 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/bottom_music_more"
             android:layout_width="45dp"
             android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
@@ -54,6 +56,7 @@
             android:orientation="vertical">
 
             <ImageView
+                android:id="@+id/bottom_music_more"
                 android:layout_width="45dp"
                 android:layout_height="match_parent"
                 android:scaleType="fitCenter"
