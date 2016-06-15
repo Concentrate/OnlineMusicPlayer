@@ -62,7 +62,7 @@
             android:id="@+id/play_all_items"
             android:layout_width="45dp"
             android:layout_height="match_parent"
-            android:background="@drawable/play_btn"
+            android:background="@drawable/pause_btn"
 
             />
 

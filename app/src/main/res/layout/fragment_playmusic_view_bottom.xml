@@ -6,6 +6,33 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:layout_alignParentBottom="true">
+        <RelativeLayout
+            android:id="@+id/seekbarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            >
+            <SeekBar
+                android:id="@+id/audioTrack"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true" />
+
+            <TextView
+                android:id="@+id/current_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/audioTrack"
+                android:text="0:25" />
+
+            <TextView
+                android:id="@+id/final_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@id/audioTrack"
+                android:text="3:59" />
+        </RelativeLayout>
 
 
     <LinearLayout
@@ -64,7 +91,7 @@
             android:layout_toRightOf="@id/last_one"
             android:layout_gravity="center"
             android:id="@+id/play_music"
-            android:src="@drawable/playbutton"/>
+            android:src="@drawable/pause"/>
         <ImageView
             android:layout_width="0dp"
             android:layout_weight="1"

@@ -1,10 +1,9 @@
 package com.stest.neteasycloud;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
-import android.os.Handler;
-import android.os.Message;
-import android.provider.MediaStore;
+import android.content.IntentFilter;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,21 +17,23 @@ import android.widget.TextView;
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.stest.DataClass.Mp3Info;
-import com.stest.Service.PlayService;
+import com.stest.OtherhelperClass.ConstantVarible;
+import com.stest.OtherhelperClass.UtilTool;
+import com.stest.Service.CompletePlayService;
 import com.stest.adapter.LocalMusicListAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class local_music_listActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private static final int CHANGE_SONG_NUMBER =10 ;
+    private static final int CHANGE_SONG_NUMBER = 10;
     private View popView;
     //弹出视图ListView
     private ListView popListView;
     private PopupWindow popupWindow;
-    private List<Map<String, Object>> popInfos = new ArrayList<>();
+    private List<HashMap<String, String>> popInfos;
     @ViewInject(R.id.back)
     ImageView backtoMenu;
     @ViewInject(R.id.bar_search)
@@ -51,43 +52,49 @@ public class local_music_listActivity extends AppCompatActivity implements View.
     ImageView next_song;
     @ViewInject(R.id.music_to_showVIew_ll)
     LinearLayout music_ll;
-    private List<Mp3Info>songlist=new ArrayList<>();
-    private Handler local_music_list_handler =new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if(msg.arg1==CHANGE_SONG_NUMBER)
-            {
-                songNumber.setText("("+songlist.size()+")");
+    @ViewInject(R.id.song_picture)
+    ImageView song_picture_iv;
+    @ViewInject(R.id.music_name)
+    TextView song_name_tv;
+    @ViewInject(R.id.music_artist)
+    TextView artist_tv;
+    private boolean isPause = true;
+    private List<Mp3Info> songlist = new ArrayList<>();
+    private BroadcastReceiver Local_MusiclistReceiver;
 
-            }
-
-        }
-
-        @Override
-        public String getMessageName(Message message) {
-            return super.getMessageName(message);
-        }
-    };
-    private boolean isChanged=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_music_list);
         ViewUtils.inject(this);
-        getMp3Info();
-        setAdapter();
         initEvent();
+        initReceiver();
+        initViews();
+        setAdapter();
 
 
     }
 
-    public List<Mp3Info> getSonglist() {
-        return songlist;
+    private void initViews() {
+        songNumber=(TextView)findViewById(R.id.songnumber_tv);
+        loclmusic_listview=(ListView)findViewById(R.id.local_music_listview) ;
+        songNumber.setText("("+songlist.size()+")");
     }
+
+    private void initReceiver() {
+        Local_MusiclistReceiver = new LocalListReceiver();
+        IntentFilter fi = new IntentFilter();
+        fi.addAction(ConstantVarible.CTL_ACTION);
+        fi.addAction(ConstantVarible.UPDATE_ACTION);
+        registerReceiver(Local_MusiclistReceiver, fi);
+
+
+    }
+
 
     private void initEvent() {
+        play_btn.setImageResource(R.drawable.pause_btn);
         backtoMenu.setOnClickListener(this);
         search.setOnClickListener(this);
         play_all_items.setOnClickListener(this);
@@ -97,56 +104,31 @@ public class local_music_listActivity extends AppCompatActivity implements View.
         next_song.setOnClickListener(this);
         popView = getLayoutInflater().inflate(R.layout.main_pop, null);
         popListView = (ListView) popView.findViewById(R.id.main_pop_listview);
-
-    }
-
-    public void getMp3Info()
-    {
-        Cursor cursor=getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,null,null,null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-        for(int i=0;i<cursor.getCount();i++)
-        {
-            Mp3Info m=new Mp3Info();
-            cursor.moveToNext();
-            long id=cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media._ID));
-            String title=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE));
-            String artise=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST));
-            long durition=cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION));
-            long size=cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE));
-            String url=cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA));
-            int isMusic=cursor.getInt(cursor.getColumnIndex(MediaStore.Audio.Media.IS_MUSIC));
-            if(isMusic!=0)
-            {
-                m.setArtist(artise);
-                m.setDuration(durition);
-                m.setId(id);
-                m.setSize(size);
-                m.setTitle(title);
-                m.setUrl(url);
-            }
-            songlist.add(m);
-        }
-        Message msg=new Message();
-        msg.arg1=CHANGE_SONG_NUMBER;
-        local_music_list_handler.sendMessage(msg);
+        songlist = UtilTool.getMp3Infos(this);
+        popInfos = UtilTool.getMusicMaps(songlist);
 
 
     }
-    private static final int PLAY_NEW_SONG=1;
-    private static final int PLAY_STOP = 3;
-    private static final int PLAY_PAUSE = 2;
-    public void setAdapter()
-    {
-        loclmusic_listview.setAdapter(new LocalMusicListAdapter(this,R.layout.localmusic_item,songlist));
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+//        unregisterReceiver(Local_MusiclistReceiver);
+    }
+
+    public void setAdapter() {
+        loclmusic_listview.setAdapter(new LocalMusicListAdapter(this, R.layout.localmusic_item, songlist));
         loclmusic_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                if(songlist!=null)
-                {
-                    Mp3Info info=songlist.get(i);
-                    Intent intent=new Intent();
-                    intent.putExtra("url",info.getUrl());
-                    intent.putExtra("message",PLAY_NEW_SONG);
-                    intent.setClass(local_music_listActivity.this, PlayService.class);
+                if (songlist != null) {
+                    Mp3Info info = songlist.get(i);
+                    Intent intent = new Intent();
+                    currentplayItem = i;
+                    intent.putExtra("url", info.getUrl());
+                    intent.putExtra("message", ConstantVarible.PLAY_MSG);
+                    intent.putExtra("current", i);//current is the local play music in the list position
+                    intent.setClass(local_music_listActivity.this, CompletePlayService.class);
                     startService(intent);
                 }
             }
@@ -157,28 +139,45 @@ public class local_music_listActivity extends AppCompatActivity implements View.
     @Override
     public void onClick(View view) {
 
-        switch (view.getId())
-        {
+        switch (view.getId()) {
             case R.id.back:
-                Intent intent=new Intent(this,selected_MainActivity.class);
+                Intent intent = new Intent(this, selected_MainActivity.class);
                 startActivity(intent);
                 break;
             case R.id.bar_search:
                 break;
             case R.id.play_btn:
-                if (isChanged) {
+                if (!isPause) {
+                    isPause = true;
                     play_all_items.setBackground(getResources().getDrawable(R.drawable.pause_btn));
                     play_btn.setBackground(null);
                     play_btn.setImageResource(R.drawable.pause_btn);
+                    Intent i = new Intent(this, CompletePlayService.class);
+                    i.putExtra("msg", ConstantVarible.PAUSE_MSG);
+                    startService(i);
+
+
                 } else {
+                    isPause = false;
                     play_all_items.setBackground(getResources().getDrawable(R.drawable.play_btn));
                     play_btn.setBackground(null);
                     play_btn.setImageResource(R.drawable.play_btn);
+                    if (!CompletePlayService.isFirstPlay()) {
+                        Intent i = new Intent(this, CompletePlayService.class);
+                        i.putExtra("msg", ConstantVarible.PLAY_CONTINUE);
+                        startService(i);
+                    } else {
+                        currentplayItem=selected_MainActivity.getCurrentPlayItem();
+                        Intent i2 = new Intent(this, CompletePlayService.class);
+                        i2.putExtra("msg", ConstantVarible.PLAY_MSG);
+                        i2.putExtra("url", songlist.get(currentplayItem).getUrl());
+                        i2.putExtra("current", currentplayItem);
+                        startService(i2);
+                    }
                 }
-                isChanged = !isChanged;
                 break;
             case R.id.music_to_showVIew_ll:
-                Intent t1=new Intent(this,PlayTheMusic.class);
+                Intent t1 = new Intent(this, PlayTheMusic.class);
                 startActivity(t1);
                 break;
             case R.id.bottom_music_more:
@@ -187,38 +186,64 @@ public class local_music_listActivity extends AppCompatActivity implements View.
                 playNextSong();
                 break;
             case R.id.play_all_items:
-                if (isChanged) {
-                    play_all_items.setBackground(getResources().getDrawable(R.drawable.pause_btn));
-                    play_btn.setBackground(null);
-                    play_btn.setImageResource(R.drawable.pause_btn);
-                } else {
+                if (isPause) {
+                    isPause = false;
                     play_all_items.setBackground(getResources().getDrawable(R.drawable.play_btn));
                     play_btn.setBackground(null);
                     play_btn.setImageResource(R.drawable.play_btn);
+                    startPlayMusic(0);
                 }
-                isChanged=!isChanged;
-                startPlayMusic(0);
                 break;
-
-
-
-
 
 
         }
     }
 
     private void playNextSong() {
+        Intent t2 = new Intent(this, CompletePlayService.class);
+        t2.putExtra("msg", ConstantVarible.PLAY_NEXT);
+        startService(t2);
 
     }
 
     private void startPlayMusic(int i) {
 
-        Mp3Info info=songlist.get(i);
-        Intent intent=new Intent();
-        intent.putExtra("url",info.getUrl());
-        intent.putExtra("message",PLAY_NEW_SONG);
-        intent.setClass(local_music_listActivity.this, PlayService.class);
+        Mp3Info info = songlist.get(i);
+        Intent intent = new Intent();
+        intent.putExtra("url", info.getUrl());
+        intent.putExtra("message", ConstantVarible.PLAY_MSG);
+        intent.putExtra("current", i);
+        intent.setClass(local_music_listActivity.this, CompletePlayService.class);
         startService(intent);
+    }
+
+    private int currentplayItem=0;
+
+    public class LocalListReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String m = intent.getAction();
+            switch (m) {
+                case ConstantVarible.CTL_ACTION:
+                    isPause= intent.getBooleanExtra("isPause", true);
+                    if (isPause) {
+                        play_all_items.setBackground(getResources().getDrawable(R.drawable.pause_btn));
+                        play_btn.setBackground(null);
+                        play_btn.setImageResource(R.drawable.pause_btn);
+                    } else {
+                        play_all_items.setBackground(getResources().getDrawable(R.drawable.play_btn));
+                        play_btn.setBackground(null);
+                        play_btn.setImageResource(R.drawable.play_btn);
+                    }
+                    break;
+                case ConstantVarible.UPDATE_ACTION:
+                    currentplayItem = intent.getIntExtra("current", 0);
+                    artist_tv.setText(songlist.get(currentplayItem).getArtist());
+                    song_name_tv.setText(songlist.get(currentplayItem).getTitle());
+                    break;
+            }
+
+        }
     }
 }

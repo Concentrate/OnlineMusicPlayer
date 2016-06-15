@@ -27,9 +27,12 @@
             android:launchMode="singleTask"
            />
         <activity android:name=".PlayTheMusic"
+            android:launchMode="singleTask"
             />
-        <activity android:name=".local_music_listActivity"></activity>
-        <service android:name="com.stest.Service.PlayService"></service>
+        <activity android:name=".local_music_listActivity"
+            android:launchMode="singleTask"></activity>
+        <service android:name="com.stest.Service.CompletePlayService"></service>
+
     </application>
 
 </manifest>

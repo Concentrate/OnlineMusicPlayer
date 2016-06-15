@@ -309,9 +309,9 @@ public class nouse_now extends AppCompatActivity implements View.OnClickListener
             case R.id.play_btn:
                 if (isChanged) {
                     play_btn.setBackground(null);
-                    play_btn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-                } else {
                     play_btn.setImageDrawable(getResources().getDrawable(R.drawable.play_btn));
+                } else {
+                    play_btn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
                     play_btn.setBackground(getResources().getDrawable(R.drawable.list_bg));
                 }
                 isChanged = !isChanged;
