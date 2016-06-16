@@ -1,15 +1,24 @@
 package com.stest.neteasycloud;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -21,15 +30,26 @@ import com.stest.DataClass.Mp3Info;
 import com.stest.OtherhelperClass.ConstantVarible;
 import com.stest.OtherhelperClass.UtilTool;
 import com.stest.Service.CompletePlayService;
+import com.stest.adapter.MainPopAdapter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by ldy on 6/13/16.
  */
 public class PlayTheMusic extends FragmentActivity implements View.OnClickListener {
 
+    
     public static final String CTL_ACTION = "www.action.CTRONL_ACTION";
+    private View popView;
+    //弹出视图ListView
+    private ListView popListView;
+    private PopupWindow popupWindow;
+    private List<Map<String, Object>> popInfos;
     @ViewInject(R.id.backtomenu)
     Button backtomenu;
     @ViewInject(R.id.musicTitle)
@@ -66,7 +86,7 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
     private String artist;      //歌曲艺术家
     private String url;         //歌曲路径
     private int currentTime;    //当前歌曲播放时间
-    private int duration;       //歌曲长度
+    private int duration=0;       //歌曲长度
     private int flag;           //播放标识
     private int repeatState;
     private final int isCurrentRepeat = 1; // 单曲循环
@@ -76,21 +96,37 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
     private boolean isShuffle;          // 随机播放
     private BroadcastReceiver PlayMusicReceiver;
 
-    private List<Mp3Info> mp3Infos;
+    private List<Mp3Info> songlist;
+    private Context mycontext;
+    private CompletePlayService myservice;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.music_layout);
+        RelativeLayout musicLayout=(RelativeLayout)findViewById(R.id.MusicLayout);
         ViewUtils.inject(this);
         initEvent();
-        initData();
-        initReceiver();
+        mycontext=this;
     }
 
-    private void initData() {
-        mp3Infos= UtilTool.getMp3Infos(this);
-    }
+
+    private ServiceConnection conn=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            CompletePlayService.MyIBinder binder=((CompletePlayService.MyIBinder)iBinder);
+            myservice = ((CompletePlayService.MyIBinder) iBinder).getCompletePlayService();
+            if(binder!=null)
+                binder.UpdateState();
+            if (myservice != null)
+                myservice.UpdateState();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
 
     private void initReceiver() {
         PlayMusicReceiver = new UdpateActionReceiver();
@@ -98,12 +134,14 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
         filter.addAction(ConstantVarible.UPDATE_ACTION);
         filter.addAction(ConstantVarible.MUSIC_CURRENT);
         filter.addAction(ConstantVarible.MUSIC_DURATION);
-        registerReceiver(PlayMusicReceiver, filter);
-
-
+        filter.addAction(ConstantVarible.CTL_ACTION);
+        registerReceiver(PlayMusicReceiver,filter);
+        serviceIntent =new Intent(PlayTheMusic.this,CompletePlayService.class);
+        bindService(serviceIntent,conn ,Context.BIND_AUTO_CREATE);
     }
 
     private void initEvent() {
+        songlist= UtilTool.getMp3Infos(this);
         play_music.setImageResource(R.drawable.pause);
         backtomenu.setOnClickListener(this);
         collect_to_like.setOnClickListener(this);
@@ -114,6 +152,59 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
         play_music.setOnClickListener(this);
         next_song.setOnClickListener(this);
         song_more.setOnClickListener(this);
+        audioTrack.setProgress(0);
+        audioTrack.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+
+
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+        popInfos = new ArrayList<>();
+        for (int i = 0; i < songlist.size(); i++) {
+            Map<String, Object> item = new HashMap<>();
+            Mp3Info m = songlist.get(i);
+            item.put("imageView", R.mipmap.list_icn_delete);
+            item.put("txt_author", m.getArtist());
+            item.put("txt_name", m.getTitle());
+            popInfos.add(item);
+        }
+        popView = getLayoutInflater().inflate(R.layout.main_pop, null);
+        popListView = (ListView) popView.findViewById(R.id.main_pop_listview);
+        popListView.setAdapter(new MainPopAdapter(this, popInfos));
+        popupWindow = new PopupWindow(popView, ViewPager.LayoutParams.MATCH_PARENT,
+                ViewPager.LayoutParams.MATCH_PARENT);
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.color.white));
+        popupWindow.setOutsideTouchable(true);
+        //刷新状态
+        popupWindow.update();
+        popupWindow.setTouchable(true);
+        //这样点击返回键也能消失
+        popupWindow.setFocusable(true);
+        popupWindow.setAnimationStyle(R.style.anim_menu_bottombar);
+        popListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Mp3Info m1 = songlist.get(i);
+                currentPlayItem= i;
+                serviceIntent = new Intent(mycontext, CompletePlayService.class);
+                serviceIntent.putExtra("message", ConstantVarible.PLAY_MSG);
+                serviceIntent.putExtra("url", m1.getUrl());
+                serviceIntent.putExtra("current", currentPlayItem);
+                startService(serviceIntent);
+            }
+        });
 
     }
 
@@ -122,6 +213,9 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
     public void onBackPressed() {
         super.onBackPressed();
     }
+    private boolean isLike=false;
+    private boolean isDownload=false;
+
 
     @Override
     public void onClick(View view) {
@@ -129,7 +223,6 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
             case R.id.backtomenu:
                 Intent t1 = new Intent(this, local_music_listActivity.class);
                 startActivity(t1);
-
                 break;
             case R.id.shuff_iv:
 
@@ -145,12 +238,34 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
 
                 break;
             case R.id.more:
+                if (!popupWindow.isShowing()) {
+                    popupWindow.showAsDropDown(backtomenu, 0, 450);
+                }
                 break;
             case R.id.collect_iv:
-                ToShowSomeMessge("已经加入我喜欢的音乐");
+                if(!isLike) {
+                    isLike=true;
+                    collect_to_like.setImageResource(R.drawable.start);
+                    ToShowSomeMessge("已经加入我喜欢的音乐");
+                }else
+                {
+                    isLike=false;
+                    collect_to_like.setImageResource(R.drawable.like_black);
+                    ToShowSomeMessge("已经从我喜欢的音乐移除");
+                }
                 break;
             case R.id.download_iv:
-                ToShowSomeMessge("正在下载");
+                if(!isDownload) {
+                    isDownload=true;
+                    download_song.setImageResource(R.drawable.download_color);
+                    ToShowSomeMessge("正在下载");
+                }else
+                {
+                    isDownload=false;
+                    download_song.setImageResource(R.drawable.downloadsong);
+                    ToShowSomeMessge("缺消下载");
+
+                }
                 break;
             case R.id.comment_iv:
                 ToShowSomeMessge("暂时没有评论");
@@ -162,45 +277,60 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
     }
 
     private void Play_NextSong() {
-        Intent i = new Intent(this, CompletePlayService.class);
-        i.putExtra("msg", ConstantVarible.PLAY_NEXT);
-        startService(i);
+        serviceIntent = new Intent(this, CompletePlayService.class);
+        serviceIntent.putExtra("msg", ConstantVarible.PLAY_NEXT);
+        startService(serviceIntent);
     }
 
     private void Play_lastone() {
 
-        Intent intent = new Intent(this, CompletePlayService.class);
-        intent.putExtra("msg", ConstantVarible.PLAY_PREVIOUS);
-        startService(intent);
+        serviceIntent = new Intent(this, CompletePlayService.class);
+        serviceIntent.putExtra("msg", ConstantVarible.PLAY_PREVIOUS);
+        startService(serviceIntent);
+    }
+    Intent serviceIntent;
+
+    @Override
+    protected void onDestroy() {
+        if(PlayMusicReceiver!=null) {
+            if (serviceIntent != null) {
+                stopService(serviceIntent);
+            }
+            unregisterReceiver(PlayMusicReceiver);
+            unbindService(conn);
+
+        }
+        super.onDestroy();
     }
 
     @Override
     protected void onStop() {
+
         super.onStop();
-//        unregisterReceiver(PlayMusicReceiver);
     }
 
     private void Play_music() {
         if (!isPause) {
             isPause = true;
             play_music.setImageResource(R.drawable.pause);
-            Intent i = new Intent(this, CompletePlayService.class);
-            i.putExtra("msg", ConstantVarible.PAUSE_MSG);
-            startService(i);
+            serviceIntent = new Intent(this, CompletePlayService.class);
+            serviceIntent.putExtra("msg", ConstantVarible.PAUSE_MSG);
+            startService(serviceIntent);
         } else {
             play_music.setImageResource(R.drawable.play);
             isPause = false;
             if (!CompletePlayService.isFirstPlay()) {
-                Intent i = new Intent(this, CompletePlayService.class);
-                i.putExtra("msg", ConstantVarible.PLAY_CONTINUE);
-                startService(i);
+                serviceIntent = new Intent(this, CompletePlayService.class);
+                serviceIntent.putExtra("msg", ConstantVarible.PLAY_CONTINUE);
+                startService(serviceIntent);
             } else {
                 currentPlayItem = selected_MainActivity.getCurrentPlayItem();
-                Intent m = new Intent(this, CompletePlayService.class);
-                m.putExtra("msg", ConstantVarible.PLAY_MSG);
-                m.putExtra("url", mp3Infos.get(currentPlayItem).getUrl());
-                m.putExtra("current", currentPlayItem);
-                startService(m);
+                serviceIntent = new Intent(this, CompletePlayService.class);
+                serviceIntent.putExtra("msg", ConstantVarible.PLAY_MSG);
+                serviceIntent.putExtra("url", songlist.get(currentPlayItem).getUrl());
+                serviceIntent.putExtra("current", currentPlayItem);
+                startService(serviceIntent
+                );
 
             }
         }
@@ -208,6 +338,12 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
 
     private void ToShowSomeMessge(String m) {
         Toast.makeText(this, m, Toast.LENGTH_SHORT).show();
+
+    }
+    protected void onResume() {
+        super.onResume();
+        initReceiver();
+
 
     }
 
@@ -220,8 +356,8 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
             String action = intent.getAction();
             switch (action) {
                 case ConstantVarible.UPDATE_ACTION: {
-                    currentPlayItem = intent.getIntExtra("currentPlayItemPlayItem", 0);
-                    Mp3Info info = mp3Infos.get(currentPlayItem);
+                    currentPlayItem = intent.getIntExtra("current", 0);
+                    Mp3Info info = songlist.get(currentPlayItem);
                     musicTitle.setText(info.getTitle());
                     musicArtist.setText(info.getArtist());
                     lyric.setText("暂时没有 " + info.getTitle() + "  的歌词");
@@ -236,6 +372,19 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
                     }
 
                 }
+                break;
+                case ConstantVarible.MUSIC_DURATION:
+                    duration=intent.getIntExtra("duration",0);
+                    audioTrack.setMax(duration);
+                    final_progress.setText(UtilTool.formatTime(duration));
+
+                    break;
+                case ConstantVarible.MUSIC_CURRENT:
+                    currentTime=intent.getIntExtra("currentTime",0);
+                    current_progress.setText(UtilTool.formatTime(currentTime));
+                    if(duration!=0)
+                    audioTrack.setProgress(currentTime);
+                    break;
 
             }
 

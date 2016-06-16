@@ -23,6 +23,7 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.welcome);
         ViewUtils.inject(this);
         new Handler().postDelayed(new Runnable() {
             @Override

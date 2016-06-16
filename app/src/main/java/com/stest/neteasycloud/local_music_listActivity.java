@@ -1,11 +1,16 @@
 package com.stest.neteasycloud;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v7.app.AppCompatActivity;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -21,10 +26,13 @@ import com.stest.OtherhelperClass.ConstantVarible;
 import com.stest.OtherhelperClass.UtilTool;
 import com.stest.Service.CompletePlayService;
 import com.stest.adapter.LocalMusicListAdapter;
+import com.stest.adapter.MainPopAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Handler;
 
 public class local_music_listActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -33,7 +41,7 @@ public class local_music_listActivity extends AppCompatActivity implements View.
     //弹出视图ListView
     private ListView popListView;
     private PopupWindow popupWindow;
-    private List<HashMap<String, String>> popInfos;
+    private List<Map<String, Object>> popInfos;
     @ViewInject(R.id.back)
     ImageView backtoMenu;
     @ViewInject(R.id.bar_search)
@@ -59,28 +67,57 @@ public class local_music_listActivity extends AppCompatActivity implements View.
     @ViewInject(R.id.music_artist)
     TextView artist_tv;
     private boolean isPause = true;
-    private List<Mp3Info> songlist = new ArrayList<>();
+    private List<Mp3Info> songlist;
     private BroadcastReceiver Local_MusiclistReceiver;
-
+    private Context mycontext;
+    private Handler serviceHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_local_music_list);
+        mycontext = this;
         ViewUtils.inject(this);
         initEvent();
-        initReceiver();
         initViews();
         setAdapter();
 
 
     }
 
+
     private void initViews() {
-        songNumber=(TextView)findViewById(R.id.songnumber_tv);
-        loclmusic_listview=(ListView)findViewById(R.id.local_music_listview) ;
-        songNumber.setText("("+songlist.size()+")");
+        songNumber = (TextView) findViewById(R.id.songnumber_tv);
+        loclmusic_listview = (ListView) findViewById(R.id.local_music_listview);
+        songNumber.setText("(" + songlist.size() + ")");
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initReceiver();
+
+
+    }
+
+    private CompletePlayService myservice;
+    private ServiceConnection conn=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            CompletePlayService.MyIBinder binder=((CompletePlayService.MyIBinder)iBinder);
+            myservice = ((CompletePlayService.MyIBinder) iBinder).getCompletePlayService();
+            if(binder!=null)
+                binder.UpdateState();
+            if (myservice != null)
+                myservice.UpdateState();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+    private Intent serviceIntent;
 
     private void initReceiver() {
         Local_MusiclistReceiver = new LocalListReceiver();
@@ -88,10 +125,12 @@ public class local_music_listActivity extends AppCompatActivity implements View.
         fi.addAction(ConstantVarible.CTL_ACTION);
         fi.addAction(ConstantVarible.UPDATE_ACTION);
         registerReceiver(Local_MusiclistReceiver, fi);
+        serviceIntent= new Intent(local_music_listActivity.this, CompletePlayService.class);//In order to At first refresh the ui
+        bindService(serviceIntent, conn, Context.BIND_AUTO_CREATE);
+
 
 
     }
-
 
     private void initEvent() {
         play_btn.setImageResource(R.drawable.pause_btn);
@@ -102,18 +141,62 @@ public class local_music_listActivity extends AppCompatActivity implements View.
         music_ll.setOnClickListener(this);
         play_more.setOnClickListener(this);
         next_song.setOnClickListener(this);
+        songlist = UtilTool.getMp3Infos(this);
+        popInfos = new ArrayList<>();
+        for (int i = 0; i < songlist.size(); i++) {
+            Map<String, Object> item = new HashMap<>();
+            Mp3Info m = songlist.get(i);
+            item.put("imageView", R.mipmap.list_icn_delete);
+            item.put("txt_author", m.getArtist());
+            item.put("txt_name", m.getTitle());
+            popInfos.add(item);
+        }
         popView = getLayoutInflater().inflate(R.layout.main_pop, null);
         popListView = (ListView) popView.findViewById(R.id.main_pop_listview);
-        songlist = UtilTool.getMp3Infos(this);
-        popInfos = UtilTool.getMusicMaps(songlist);
+        popListView.setAdapter(new MainPopAdapter(this, popInfos));
+        popupWindow = new PopupWindow(popView, ViewPager.LayoutParams.MATCH_PARENT,
+                ViewPager.LayoutParams.MATCH_PARENT);
+        popupWindow.setBackgroundDrawable(getResources().getDrawable(R.color.white));
+        popupWindow.setOutsideTouchable(true);
+        //刷新状态
+        popupWindow.update();
+        popupWindow.setTouchable(true);
+        //这样点击返回键也能消失
+        popupWindow.setFocusable(true);
+        popupWindow.setAnimationStyle(R.style.anim_menu_bottombar);
+        popListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Mp3Info m1 = songlist.get(i);
+                currentplayItem = i;
+                Intent t1 = new Intent(mycontext, CompletePlayService.class);
+                t1.putExtra("message", ConstantVarible.PLAY_MSG);
+                t1.putExtra("url", m1.getUrl());
+                t1.putExtra("current", currentplayItem);
+                startService(t1);
+            }
+        });
 
 
     }
 
+
+    @Override
+    protected void onDestroy() {
+        if (Local_MusiclistReceiver != null) {
+            if (serviceIntent != null) {
+                stopService(serviceIntent);
+            }
+            unregisterReceiver(Local_MusiclistReceiver);
+            unbindService(conn);
+        }
+        super.onDestroy();
+    }
+
     @Override
     protected void onStop() {
+
         super.onStop();
-//        unregisterReceiver(Local_MusiclistReceiver);
     }
 
     public void setAdapter() {
@@ -123,13 +206,14 @@ public class local_music_listActivity extends AppCompatActivity implements View.
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 if (songlist != null) {
                     Mp3Info info = songlist.get(i);
-                    Intent intent = new Intent();
+                    serviceIntent= new Intent();
                     currentplayItem = i;
-                    intent.putExtra("url", info.getUrl());
-                    intent.putExtra("message", ConstantVarible.PLAY_MSG);
-                    intent.putExtra("current", i);//current is the local play music in the list position
-                    intent.setClass(local_music_listActivity.this, CompletePlayService.class);
-                    startService(intent);
+                    serviceIntent.putExtra("url", info.getUrl());
+                    serviceIntent.putExtra("message", ConstantVarible.PLAY_MSG);
+                    serviceIntent.putExtra("current", i);//current is the local play music in the list position
+                    serviceIntent.setClass(local_music_listActivity.this, CompletePlayService.class);
+                    startService(serviceIntent
+                    );
                 }
             }
         });
@@ -152,9 +236,9 @@ public class local_music_listActivity extends AppCompatActivity implements View.
                     play_all_items.setBackground(getResources().getDrawable(R.drawable.pause_btn));
                     play_btn.setBackground(null);
                     play_btn.setImageResource(R.drawable.pause_btn);
-                    Intent i = new Intent(this, CompletePlayService.class);
-                    i.putExtra("msg", ConstantVarible.PAUSE_MSG);
-                    startService(i);
+                    serviceIntent = new Intent(this, CompletePlayService.class);
+                    serviceIntent.putExtra("msg", ConstantVarible.PAUSE_MSG);
+                    startService(serviceIntent);
 
 
                 } else {
@@ -163,16 +247,17 @@ public class local_music_listActivity extends AppCompatActivity implements View.
                     play_btn.setBackground(null);
                     play_btn.setImageResource(R.drawable.play_btn);
                     if (!CompletePlayService.isFirstPlay()) {
-                        Intent i = new Intent(this, CompletePlayService.class);
-                        i.putExtra("msg", ConstantVarible.PLAY_CONTINUE);
-                        startService(i);
+                        serviceIntent= new Intent(this, CompletePlayService.class);
+                        serviceIntent.putExtra("msg", ConstantVarible.PLAY_CONTINUE);
+                        startService(serviceIntent);
                     } else {
-                        currentplayItem=selected_MainActivity.getCurrentPlayItem();
-                        Intent i2 = new Intent(this, CompletePlayService.class);
-                        i2.putExtra("msg", ConstantVarible.PLAY_MSG);
-                        i2.putExtra("url", songlist.get(currentplayItem).getUrl());
-                        i2.putExtra("current", currentplayItem);
-                        startService(i2);
+                        currentplayItem = selected_MainActivity.getCurrentPlayItem();
+                        serviceIntent= new Intent(this, CompletePlayService.class);
+                        serviceIntent.putExtra("msg", ConstantVarible.PLAY_MSG);
+                        serviceIntent.putExtra("url", songlist.get(currentplayItem).getUrl());
+                        serviceIntent.putExtra("current", currentplayItem);
+                        startService(serviceIntent
+                        );
                     }
                 }
                 break;
@@ -181,6 +266,9 @@ public class local_music_listActivity extends AppCompatActivity implements View.
                 startActivity(t1);
                 break;
             case R.id.bottom_music_more:
+                if (!popupWindow.isShowing()) {
+                    popupWindow.showAsDropDown(backtoMenu, 0, 450);
+                }
                 break;
             case R.id.next_song:
                 playNextSong();
@@ -200,24 +288,24 @@ public class local_music_listActivity extends AppCompatActivity implements View.
     }
 
     private void playNextSong() {
-        Intent t2 = new Intent(this, CompletePlayService.class);
-        t2.putExtra("msg", ConstantVarible.PLAY_NEXT);
-        startService(t2);
+        serviceIntent= new Intent(this, CompletePlayService.class);
+        serviceIntent.putExtra("msg", ConstantVarible.PLAY_NEXT);
+        startService(serviceIntent);
 
     }
 
     private void startPlayMusic(int i) {
 
         Mp3Info info = songlist.get(i);
-        Intent intent = new Intent();
-        intent.putExtra("url", info.getUrl());
-        intent.putExtra("message", ConstantVarible.PLAY_MSG);
-        intent.putExtra("current", i);
-        intent.setClass(local_music_listActivity.this, CompletePlayService.class);
-        startService(intent);
+        serviceIntent = new Intent();
+        serviceIntent.putExtra("url", info.getUrl());
+        serviceIntent.putExtra("msg", ConstantVarible.PLAY_MSG);
+        serviceIntent.putExtra("current", i);
+        serviceIntent.setClass(local_music_listActivity.this, CompletePlayService.class);
+        startService(serviceIntent);
     }
 
-    private int currentplayItem=0;
+    private int currentplayItem = 0;
 
     public class LocalListReceiver extends BroadcastReceiver {
 
@@ -226,7 +314,7 @@ public class local_music_listActivity extends AppCompatActivity implements View.
             String m = intent.getAction();
             switch (m) {
                 case ConstantVarible.CTL_ACTION:
-                    isPause= intent.getBooleanExtra("isPause", true);
+                    isPause = intent.getBooleanExtra("isPause", true);
                     if (isPause) {
                         play_all_items.setBackground(getResources().getDrawable(R.drawable.pause_btn));
                         play_btn.setBackground(null);

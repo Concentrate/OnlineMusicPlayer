@@ -2,13 +2,30 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context="com.stest.fragraments.friends_fragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="hello,friends"
-        android:textColor="@android:color/black"/>
+        android:fitsSystemWindows="true"
+        android:orientation="vertical">
+
+        <android.support.design.widget.TabLayout
+            android:id="@+id/tabs_friends"
+            app:tabIndicatorColor="@color/themeColor"
+            app:tabSelectedTextColor="@color/themeColor"
+            app:tabTextColor="#7D7D7D"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"></android.support.design.widget.TabLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/view_pager_in_friends"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffffff" />
+
+    </LinearLayout>
 
 </FrameLayout>

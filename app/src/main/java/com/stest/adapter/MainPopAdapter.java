@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.stest.neteasycloud.R;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 

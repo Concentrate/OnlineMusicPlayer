@@ -1,5 +1,6 @@
 package com.stest.Service;
 
+import java.io.FileDescriptor;
 import java.util.List;
 
 import android.app.Service;
@@ -12,6 +13,10 @@ import android.media.MediaPlayer.OnCompletionListener;
 import android.media.MediaPlayer.OnPreparedListener;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.IInterface;
+import android.os.Message;
+import android.os.Parcel;
+import android.os.RemoteException;
 import android.util.Log;
 
 import com.stest.DataClass.Mp3Info;
@@ -54,10 +59,34 @@ public class CompletePlayService extends Service {
                 }
 
             }
+            if(msg.what==2)
+            {
+
+                Intent in=new Intent();
+                in.setAction(ConstantVarible.UPDATE_ACTION);
+                in.putExtra("current",current);
+                sendBroadcast(in);
+                handler.sendEmptyMessageDelayed(2,1000);
+
+            }
+            if(msg.what==3)
+            {
+
+                Intent in=new Intent();
+                in.setAction(ConstantVarible.CTL_ACTION);
+                in.putExtra("isPause",isPause);
+                sendBroadcast(in);
+                handler.sendEmptyMessageDelayed(3,1000);
+            }
         }
 
         ;
     };
+
+    @Override
+    public boolean onUnbind(Intent intent) {
+        return true;
+    }
 
     @Override
     public void onCreate() {
@@ -107,10 +136,73 @@ public class CompletePlayService extends Service {
         int index = (int) (Math.random() * end);
         return index;
     }
+    public void UpdateState()
+    {
+        handler.sendEmptyMessage(2);
+        handler.sendEmptyMessage(3);
 
+    }
+
+
+    private MyIBinder mybinder=new MyIBinder();
     @Override
     public IBinder onBind(Intent arg0) {
-        return null;
+        return mybinder;
+    }
+    public class MyIBinder implements  IBinder
+    {
+        public CompletePlayService getCompletePlayService()
+        {
+            return CompletePlayService.this;
+        }
+        public void UpdateState()
+        {
+            UpdateState();
+        }
+        @Override
+        public String getInterfaceDescriptor() throws RemoteException {
+            return null;
+        }
+
+        @Override
+        public boolean pingBinder() {
+            return false;
+        }
+
+        @Override
+        public boolean isBinderAlive() {
+            return false;
+        }
+
+        @Override
+        public IInterface queryLocalInterface(String s) {
+            return null;
+        }
+
+        @Override
+        public void dump(FileDescriptor fileDescriptor, String[] strings) throws RemoteException {
+
+        }
+
+        @Override
+        public void dumpAsync(FileDescriptor fileDescriptor, String[] strings) throws RemoteException {
+
+        }
+
+        @Override
+        public boolean transact(int i, Parcel parcel, Parcel parcel1, int i1) throws RemoteException {
+            return false;
+        }
+
+        @Override
+        public void linkToDeath(DeathRecipient deathRecipient, int i) throws RemoteException {
+
+        }
+
+        @Override
+        public boolean unlinkToDeath(DeathRecipient deathRecipient, int i) {
+            return false;
+        }
     }
 
     private static boolean isFirstPlay=true;
@@ -122,41 +214,48 @@ public class CompletePlayService extends Service {
 
     @Override
     public void onStart(Intent intent, int startId) {
-        path = intent.getStringExtra("url");        //歌曲路径
-        current = intent.getIntExtra("current", -1);    //当前播放歌曲的在mp3Infos的位置
-        msg = intent.getIntExtra("msg", 0);            //播放信息
-        if (msg == ConstantVarible.PLAY_MSG) {    //直接播放音乐
-            play(0);
-        } else if (msg == ConstantVarible.PAUSE_MSG) {    //暂停
-            pause();
-        } else if (msg == ConstantVarible.PLAY_STOP) {        //停止
-            stop();
-        } else if (msg == ConstantVarible.PLAY_CONTINUE) {    //继续播放
-            resume();
-        } else if (msg == ConstantVarible.PLAY_PREVIOUS) {    //上一首
-            previous();
-        } else if (msg == ConstantVarible.PLAY_NEXT) {        //下一首
-            next();
+        if(intent!=null) {
+            path = intent.getStringExtra("url");        //歌曲路径
+            current = intent.getIntExtra("current", -1);    //当前播放歌曲的在mp3Infos的位置
+            msg = intent.getIntExtra("msg", 0);            //播放信息
+            if (msg == ConstantVarible.PLAY_MSG) {    //直接播放音乐
+                play(0);
+            } else if (msg == ConstantVarible.PAUSE_MSG) {    //暂停
+                pause();
+            } else if (msg == ConstantVarible.PLAY_STOP) {        //停止
+                stop();
+            } else if (msg == ConstantVarible.PLAY_CONTINUE) {    //继续播放
+                resume();
+            } else if (msg == ConstantVarible.PLAY_PREVIOUS) {    //上一首
+                previous();
+            } else if (msg == ConstantVarible.PLAY_NEXT) {        //下一首
+                next();
+            } else if (msg == ConstantVarible.SEEKTO) {
+
+            }
+            super.onStart(intent, startId);
         }
-        super.onStart(intent, startId);
+
     }
 
 
     private void play(int currentTime) {
         try {
             isFirstPlay=false;
+            isPause=false;
             mediaPlayer.reset();// 把各项参数恢复到初始状态
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare(); // 进行缓冲
             mediaPlayer.setOnPreparedListener(new PreparedListener(currentTime));// 注册一个监听器
             handler.sendEmptyMessage(1);
-            Intent sendIntent = new Intent(UPDATE_ACTION);
-
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(ConstantVarible.UPDATE_ACTION);
             sendIntent.putExtra("current", current);
-           Intent send2=new Intent(CTL_ACTION);
-            send2.putExtra("isPause",false);
             sendBroadcast(sendIntent);
-            sendBroadcast(send2);
+            sendIntent.setAction(ConstantVarible.CTL_ACTION);
+            sendIntent.putExtra("isPause",false);
+            sendBroadcast(sendIntent);
+            UpdateState();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -199,7 +298,6 @@ public class CompletePlayService extends Service {
      */
     private void next() {
         current = (current + 1) % mp3Infos.size();
-
         play(0);
     }
 

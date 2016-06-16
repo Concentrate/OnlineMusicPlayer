@@ -1,12 +1,15 @@
 package com.stest.neteasycloud;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
@@ -16,6 +19,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -94,22 +98,7 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
     private Context mycontext;
     private BroadcastReceiver selected_mainReceiver;
     private boolean isPause = true;
-    private android.os.Handler selecte_MainHandler = new android.os.Handler() {
-        @Override
-        public String getMessageName(Message message) {
-            return super.getMessageName(message);
-        }
 
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-        }
-
-        @Override
-        public boolean sendMessageAtTime(Message msg, long uptimeMillis) {
-            return super.sendMessageAtTime(msg, uptimeMillis);
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,23 +109,55 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
         initEvent();
         LocalInitData();
         LocalInitView();
-        initReceiver();
+
+
         mycontext = this;
 
 
     }
 
+    private CompletePlayService myservice;
+    private ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            CompletePlayService.MyIBinder binder=((CompletePlayService.MyIBinder)iBinder);
+            myservice = ((CompletePlayService.MyIBinder) iBinder).getCompletePlayService();
+            if(binder!=null)
+                binder.UpdateState();
+            if (myservice != null)
+                myservice.UpdateState();
+
+
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+
+        }
+    };
+
     private void initReceiver() {
+
+        Intent m = new Intent(selected_MainActivity.this, CompletePlayService.class);
+        bindService(m, conn, Context.BIND_AUTO_CREATE);
         selected_mainReceiver = new SelectedMainReceiver();
         IntentFilter filter = new IntentFilter();
         filter.addAction(ConstantVarible.UPDATE_ACTION);
         filter.addAction(ConstantVarible.CTL_ACTION);
+        registerReceiver(selected_mainReceiver, filter);
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
 
     }
 
@@ -158,7 +179,12 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
     @Override
     protected void onResume() {
         super.onResume();
+        initReceiver();
+
+
+
     }
+
 
     private void initWidgets() {
         play_btn = (ImageView) findViewById(R.id.play_btn);
@@ -196,11 +222,11 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Mp3Info m1 = localmusiclist.get(i);
                 currentPlayItem = i;
-                Intent t1 = new Intent(mycontext, CompletePlayService.class);
-                t1.putExtra("message", ConstantVarible.PLAY_MSG);
-                t1.putExtra("url", m1.getUrl());
-                t1.putExtra("current", currentPlayItem);
-                startService(t1);
+                serviceIntent = new Intent(mycontext, CompletePlayService.class);
+                serviceIntent.putExtra("message", ConstantVarible.PLAY_MSG);
+                serviceIntent.putExtra("url", m1.getUrl());
+                serviceIntent.putExtra("current", currentPlayItem);
+                startService(serviceIntent);
 
             }
         });
@@ -274,15 +300,29 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
     }
 
     private boolean isFirstPlay = true;
+    private Intent serviceIntent;
+
+    @Override
+    protected void onDestroy() {
+        if (selected_mainReceiver != null) {
+            if (serviceIntent != null)
+                stopService(serviceIntent);
+            unregisterReceiver(selected_mainReceiver);
+            unbindService(conn);
+        }
+        BeforeLeaveStore();
+        super.onDestroy();
+    }
 
     @Override
     protected void onStop() {
+
         super.onStop();
-//        unregisterReceiver(selected_mainReceiver);
     }
 
     @Override
     public void onClick(View view) {
+
         switch (view.getId()) {
             case R.id.bar_disco:
                 view_pager.setCurrentItem(0);
@@ -320,25 +360,26 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
                     isPause = true;
                     play_btn.setBackground(null);
                     play_btn.setImageDrawable(getResources().getDrawable(R.drawable.pause_btn));
-                    Intent t1 = new Intent(this, CompletePlayService.class);
-                    t1.putExtra("message", ConstantVarible.PAUSE_MSG);
-                    startService(t1);
+                    serviceIntent = new Intent(this, CompletePlayService.class);
+                    serviceIntent.putExtra("msg", ConstantVarible.PAUSE_MSG);
+                    startService(serviceIntent);
 
                 } else {
                     isPause = false;
                     play_btn.setImageDrawable(getResources().getDrawable(R.drawable.play_btn));
                     play_btn.setBackground(getResources().getDrawable(R.drawable.list_bg));
                     if (!isFirstPlay) {
-                        Intent t1 = new Intent(this, CompletePlayService.class);
-                        t1.putExtra("message", ConstantVarible.PLAY_CONTINUE);
-                        startService(t1);
+
+                        serviceIntent = new Intent(this, CompletePlayService.class);
+                        serviceIntent.putExtra("msg", ConstantVarible.PLAY_CONTINUE);
+                        startService(serviceIntent);
                     } else {
                         isFirstPlay = false;
-                        Intent t2 = new Intent(this, CompletePlayService.class);
-                        t2.putExtra("message", ConstantVarible.PLAY_MSG);
-                        t2.putExtra("current", currentPlayItem);
-                        t2.putExtra("url", localmusiclist.get(currentPlayItem).getUrl());
-                        startService(t2);
+                        serviceIntent = new Intent(this, CompletePlayService.class);
+                        serviceIntent.putExtra("msg", ConstantVarible.PLAY_MSG);
+                        serviceIntent.putExtra("current", currentPlayItem);
+                        serviceIntent.putExtra("url", localmusiclist.get(currentPlayItem).getUrl());
+                        startService(serviceIntent);
                     }
                 }
                 break;
@@ -352,9 +393,10 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
                 startActivity(intent);
                 break;
             case R.id.next_song:
-                Intent t3 = new Intent(this, CompletePlayService.class);
-                t3.putExtra("msg", ConstantVarible.PLAY_NEXT);
-                startService(t3);
+
+                serviceIntent = new Intent(this, CompletePlayService.class);
+                serviceIntent.putExtra("msg", ConstantVarible.PLAY_NEXT);
+                startService(serviceIntent);
                 break;
         }
     }
@@ -362,8 +404,11 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        BeforeLeaveStore();
+        if (this.isTaskRoot()) {
+            moveTaskToBack(true);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     private final static String CurrentItem = "currentItem";

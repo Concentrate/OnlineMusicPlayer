@@ -46,7 +46,7 @@
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:id="@+id/collect_iv"
-            android:src="@drawable/start"/>
+            android:src="@drawable/like_black"/>
         <ImageView
             android:layout_width="0dp"
             android:layout_height="match_parent"
