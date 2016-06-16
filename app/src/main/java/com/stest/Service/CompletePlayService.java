@@ -216,7 +216,7 @@ public class CompletePlayService extends Service {
     public void onStart(Intent intent, int startId) {
         if(intent!=null) {
             path = intent.getStringExtra("url");        //歌曲路径
-            current = intent.getIntExtra("current", -1);    //当前播放歌曲的在mp3Infos的位置
+            current = intent.getIntExtra("current", current);    //当前播放歌曲的在mp3Infos的位置
             msg = intent.getIntExtra("msg", 0);            //播放信息
             if (msg == ConstantVarible.PLAY_MSG) {    //直接播放音乐
                 play(0);
