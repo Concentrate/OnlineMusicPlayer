@@ -317,6 +317,7 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
     @Override
     protected void onStop() {
 
+        BeforeLeaveStore();
         super.onStop();
     }
 

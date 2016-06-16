@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -87,13 +89,12 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
     private String url;         //歌曲路径
     private int currentTime;    //当前歌曲播放时间
     private int duration=0;       //歌曲长度
-    private int flag;           //播放标识
+    private int playmodeflag=2;           //播放标识,默认全部循环
     private int repeatState;
     private final int isCurrentRepeat = 1; // 单曲循环
     private final int isAllRepeat = 2;      // 全部循环
     private boolean isPause = true;                // 暂停
-    private boolean isNoneShuffle;           // 顺序播放
-    private boolean isShuffle;          // 随机播放
+
     private BroadcastReceiver PlayMusicReceiver;
 
     private List<Mp3Info> songlist;
@@ -104,7 +105,6 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.music_layout);
-        RelativeLayout musicLayout=(RelativeLayout)findViewById(R.id.MusicLayout);
         ViewUtils.inject(this);
         initEvent();
         mycontext=this;
@@ -141,6 +141,7 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
     }
 
     private void initEvent() {
+
         songlist= UtilTool.getMp3Infos(this);
         play_music.setImageResource(R.drawable.pause);
         backtomenu.setOnClickListener(this);
@@ -181,6 +182,8 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
             popInfos.add(item);
         }
         popView = getLayoutInflater().inflate(R.layout.main_pop, null);
+        TextView playallItems=(TextView) popView.findViewById(R.id.play_all_items);
+        playallItems.setText("播放全部("+songlist.size()+")");
         popListView = (ListView) popView.findViewById(R.id.main_pop_listview);
         popListView.setAdapter(new MainPopAdapter(this, popInfos));
         popupWindow = new PopupWindow(popView, ViewPager.LayoutParams.MATCH_PARENT,
@@ -225,6 +228,28 @@ public class PlayTheMusic extends FragmentActivity implements View.OnClickListen
                 startActivity(t1);
                 break;
             case R.id.shuff_iv:
+                Intent t=new Intent();
+                if(playmodeflag==2)
+                {
+                    playmodeflag=3;
+                    shuff.setImageResource(R.drawable.allsong_circle);
+                    shuff.setColorFilter(R.color.redTagColor);
+
+
+                }else if(playmodeflag==3)
+                {
+                    shuff.setImageResource(R.drawable.shuffle);
+                    playmodeflag=1;
+
+
+                }else if(playmodeflag==1)
+                {
+                    shuff.setImageResource(R.drawable.onesong_circle);
+                    shuff.setColorFilter(R.color.liveRankYellow);
+                    playmodeflag=2;
+
+                }
+
 
                 break;
             case R.id.play_music:

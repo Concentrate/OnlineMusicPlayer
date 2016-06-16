@@ -75,7 +75,9 @@
             android:id="@+id/shuff_iv"
             android:layout_gravity="center"
             android:layout_alignParentLeft="true"
-            android:src="@drawable/shuffle"/>
+            android:src="@drawable/shuffle"
+            />
+
         <ImageView
             android:layout_width="0dp"
             android:layout_weight="1"

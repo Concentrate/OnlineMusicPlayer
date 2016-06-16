@@ -32,7 +32,7 @@ public class CompletePlayService extends Service {
     private boolean isPause;
     private int current = 0;        // 记录当前正在播放的音乐
     private List<Mp3Info> mp3Infos;    //存放Mp3Info对象的集合
-    private int status = 3;            //播放状态，默认为顺序播放
+    private int status = 2;
     private MyReceiver myReceiver;    //自定义广播接收器
     private int currentTime;        //当前播放进度
     private int duration;            //播放长度
@@ -59,24 +59,22 @@ public class CompletePlayService extends Service {
                 }
 
             }
-            if(msg.what==2)
-            {
+            if (msg.what == 2) {
 
-                Intent in=new Intent();
+                Intent in = new Intent();
                 in.setAction(ConstantVarible.UPDATE_ACTION);
-                in.putExtra("current",current);
+                in.putExtra("current", current);
                 sendBroadcast(in);
-                handler.sendEmptyMessageDelayed(2,1000);
+                handler.sendEmptyMessageDelayed(2, 1000);
 
             }
-            if(msg.what==3)
-            {
+            if (msg.what == 3) {
 
-                Intent in=new Intent();
+                Intent in = new Intent();
                 in.setAction(ConstantVarible.CTL_ACTION);
-                in.putExtra("isPause",isPause);
+                in.putExtra("isPause", isPause);
                 sendBroadcast(in);
-                handler.sendEmptyMessageDelayed(3,1000);
+                handler.sendEmptyMessageDelayed(3, 1000);
             }
         }
 
@@ -107,18 +105,10 @@ public class CompletePlayService extends Service {
                     if (current > mp3Infos.size() - 1) {
                         current = 0;
                     }
-                    Intent sendIntent = new Intent(UPDATE_ACTION);
-                    sendIntent.putExtra("current", current);
-                    // 发送广播，将被Activity组件中的BroadcastReceiver接收到
-                    sendBroadcast(sendIntent);
                     path = mp3Infos.get(current).getUrl();
                     play(0);
                 } else if (status == 3) {    //随机播放
                     current = getRandomIndex(mp3Infos.size() - 1);
-                    Intent sendIntent = new Intent(UPDATE_ACTION);
-                    sendIntent.putExtra("current", current);
-                    // 发送广播，将被Activity组件中的BroadcastReceiver接收到
-                    sendBroadcast(sendIntent);
                     path = mp3Infos.get(current).getUrl();
                     play(0);
                 }
@@ -127,7 +117,7 @@ public class CompletePlayService extends Service {
 
         myReceiver = new MyReceiver();
         IntentFilter filter = new IntentFilter();
-        filter.addAction(PlayTheMusic.CTL_ACTION);
+        filter.addAction(ConstantVarible.MUSIC_SHUFFSTATE);
         registerReceiver(myReceiver, filter);
     }
 
@@ -136,29 +126,30 @@ public class CompletePlayService extends Service {
         int index = (int) (Math.random() * end);
         return index;
     }
-    public void UpdateState()
-    {
+
+    public void UpdateState() {
         handler.sendEmptyMessage(2);
         handler.sendEmptyMessage(3);
 
     }
 
 
-    private MyIBinder mybinder=new MyIBinder();
+    private MyIBinder mybinder = new MyIBinder();
+
     @Override
     public IBinder onBind(Intent arg0) {
         return mybinder;
     }
-    public class MyIBinder implements  IBinder
-    {
-        public CompletePlayService getCompletePlayService()
-        {
+
+    public class MyIBinder implements IBinder {
+        public CompletePlayService getCompletePlayService() {
             return CompletePlayService.this;
         }
-        public void UpdateState()
-        {
+
+        public void UpdateState() {
             UpdateState();
         }
+
         @Override
         public String getInterfaceDescriptor() throws RemoteException {
             return null;
@@ -205,7 +196,7 @@ public class CompletePlayService extends Service {
         }
     }
 
-    private static boolean isFirstPlay=true;
+    private static boolean isFirstPlay = true;
 
     public static boolean isFirstPlay() {
         return isFirstPlay;
@@ -214,7 +205,7 @@ public class CompletePlayService extends Service {
 
     @Override
     public void onStart(Intent intent, int startId) {
-        if(intent!=null) {
+        if (intent != null) {
             path = intent.getStringExtra("url");        //歌曲路径
             current = intent.getIntExtra("current", current);    //当前播放歌曲的在mp3Infos的位置
             msg = intent.getIntExtra("msg", 0);            //播放信息
@@ -241,8 +232,8 @@ public class CompletePlayService extends Service {
 
     private void play(int currentTime) {
         try {
-            isFirstPlay=false;
-            isPause=false;
+            isFirstPlay = false;
+            isPause = false;
             mediaPlayer.reset();// 把各项参数恢复到初始状态
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare(); // 进行缓冲
@@ -253,7 +244,7 @@ public class CompletePlayService extends Service {
             sendIntent.putExtra("current", current);
             sendBroadcast(sendIntent);
             sendIntent.setAction(ConstantVarible.CTL_ACTION);
-            sendIntent.putExtra("isPause",false);
+            sendIntent.putExtra("isPause", false);
             sendBroadcast(sendIntent);
             UpdateState();
 
@@ -287,7 +278,13 @@ public class CompletePlayService extends Service {
      * 上一首
      */
     private void previous() {
-        current = current - 1;
+        if (status == 2)
+            current = current - 2;
+        else if (status == 1)
+            current = current - 1;
+        else {
+            current = getRandomIndex(mp3Infos.size() - 1);
+        }
         if (current < 0)
             current = mp3Infos.size() - 1;
         play(0);
@@ -297,7 +294,13 @@ public class CompletePlayService extends Service {
      * 下一首
      */
     private void next() {
-        current = (current + 1) % mp3Infos.size();
+        if (status == 2) {
+            current = (current + 1) % mp3Infos.size();
+        } else if (status == 1) {
+            current = current;
+        } else if (status == 3) {
+            current = getRandomIndex(mp3Infos.size() - 1);
+        }
         play(0);
     }
 
@@ -362,7 +365,7 @@ public class CompletePlayService extends Service {
                     status = 2;    //将播放状态置为2表示：全部循环
                     break;
                 case 3:
-                    status = 3;    //将播放状态置为4表示：随机播放
+                    status = 3;    //将播放状态置为3表示：随机播放
                     break;
             }
         }

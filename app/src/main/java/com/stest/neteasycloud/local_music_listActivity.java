@@ -152,6 +152,8 @@ public class local_music_listActivity extends AppCompatActivity implements View.
             popInfos.add(item);
         }
         popView = getLayoutInflater().inflate(R.layout.main_pop, null);
+        TextView playallItem=(TextView)popView.findViewById(R.id.play_all_items) ;
+        playallItem.setText("播放全部("+songlist.size()+")");
         popListView = (ListView) popView.findViewById(R.id.main_pop_listview);
         popListView.setAdapter(new MainPopAdapter(this, popInfos));
         popupWindow = new PopupWindow(popView, ViewPager.LayoutParams.MATCH_PARENT,

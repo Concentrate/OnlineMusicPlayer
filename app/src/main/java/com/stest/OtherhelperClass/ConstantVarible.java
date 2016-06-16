@@ -16,5 +16,6 @@ public class ConstantVarible {
     public static final String CTL_ACTION = "com.action.CTL_ACTION";        //控制动作
     public static final String MUSIC_CURRENT = "com.action.MUSIC_CURRENT";    //当前音乐播放时间更新动作
     public static final String MUSIC_DURATION = "com.action.MUSIC_DURATION";//新音乐长度更新动作
+    public  static final String MUSIC_SHUFFSTATE="com.action.SHUFF_STATE";
     public static final int SEEKTO =6 ;
 }
