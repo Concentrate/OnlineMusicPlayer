@@ -195,6 +195,7 @@ public class local_music_listActivity extends AppCompatActivity implements View.
             }
             unregisterReceiver(Local_MusiclistReceiver);
             unbindService(conn);
+
         }
         super.onDestroy();
     }
