@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
@@ -20,8 +19,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -30,27 +27,30 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.stest.DataClass.Mp3Info;
 import com.stest.OtherhelperClass.ConstantVarible;
-import com.stest.OtherhelperClass.GetLocalSong;
 import com.stest.OtherhelperClass.NoSclideViewpager;
+import com.stest.OtherhelperClass.UtilTool;
 import com.stest.Service.CompletePlayService;
 import com.stest.adapter.MainPopAdapter;
 import com.stest.adapter.main_selectedAdapter;
 import com.stest.fragraments.friends_fragment;
 import com.stest.fragraments.local_fragment;
 import com.stest.fragraments.online_fragment;
+import com.stest.fragraments.online_ranking;
+import com.stest.fragraments.online_recommend;
+import com.stest.fragraments.online_songlist;
+import com.stest.fragraments.onlinebrocast_station;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class selected_MainActivity extends FragmentActivity implements View.OnClickListener, friends_fragment.OnFragmentInteractionListener, online_fragment.OnFragmentInteractionListener, local_fragment.OnFragmentInteractionListener {
+public class selected_MainActivity extends FragmentActivity implements View.OnClickListener, friends_fragment.OnFragmentInteractionListener, online_fragment.OnFragmentInteractionListener, local_fragment.OnFragmentInteractionListener,online_recommend.OnFragmentInteractionListener,online_ranking.OnFragmentInteractionListener ,online_songlist.OnFragmentInteractionListener,onlinebrocast_station.OnFragmentInteractionListener{
 
     private static final int PLAY_STOP = 3;
     private static final int PLAY_PAUSE = 2;
@@ -90,7 +90,6 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
     private boolean isChanged = true;
     private List<Map<String, Object>> popInfos = new ArrayList<>();
     private FragmentManager myfragmentmanager;
-    private GetLocalSong helperClass;
     private List<Mp3Info> localmusiclist;
     @ViewInject(R.id.music_name)
     private TextView song_name_tv;
@@ -207,8 +206,7 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
         myfragmentmanager = getSupportFragmentManager();
         bottom_music_ll = (LinearLayout) findViewById(R.id.music_to_showVIew_ll);
         popView = getLayoutInflater().inflate(R.layout.main_pop, null);
-        helperClass = new GetLocalSong(this);
-        localmusiclist = helperClass.getMp3Info();
+        localmusiclist = UtilTool.getMp3Infos(this);
 
 
     }

@@ -4,35 +4,41 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/SplashTheme"
-        >
-
+        android:theme="@style/SplashTheme">
         <activity android:name=".SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".selected_MainActivity"
             android:label="@string/title_activity_selected__main"
-            android:launchMode="singleTask"
-           >
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".PlayTheMusic"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".local_music_listActivity"
+            android:launchMode="singleTask" />
 
-        </activity>
-        <activity android:name=".PlayTheMusic"
+        <service android:name="com.stest.Service.CompletePlayService" />
+
+        <activity
+            android:name=".onlineRecommend"
+            android:label="@string/title_activity_online_recommend"
             android:launchMode="singleTask"
-            />
-        <activity android:name=".local_music_listActivity"
+            android:theme="@style/SplashTheme" />
+        <activity android:name=".NewSongRanking"
             android:launchMode="singleTask"></activity>
-        <service android:name="com.stest.Service.CompletePlayService"></service>
-
     </application>
 
 </manifest>

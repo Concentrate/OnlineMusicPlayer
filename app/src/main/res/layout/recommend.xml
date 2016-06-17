@@ -47,6 +47,7 @@
                             <ImageButton
                                 android:layout_width="55dp"
                                 android:layout_height="55dp"
+                                android:id="@+id/personal_fm"
                                 android:background="@drawable/recommend_fm" />
 
                             <TextView
@@ -119,6 +120,7 @@
                                 android:layout_width="55dp"
                                 android:layout_height="55dp"
                                 android:layout_gravity="center"
+                                android:id="@+id/recommend_rank_newsong"
                                 android:background="@drawable/recommend_rank" />
 
                             <TextView

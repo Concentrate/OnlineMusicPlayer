@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="dark">#FF222222</color>
+    <color name="light">#FFEEEEEE</color>
+    <declare-styleable name="CircleImageView"><attr format="dimension" name="civ_border_width"/><attr format="color" name="civ_border_color"/><attr format="boolean" name="civ_border_overlay"/><attr format="color" name="civ_fill_color"/></declare-styleable>
+    <dimen name="base_padding">16dp</dimen>
+    <string name="app_name">CircleImageView Sample</string>
+    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+    	
+    </style>
+</resources>

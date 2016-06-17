@@ -1,0 +1,32 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent" >
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:id="@+id/tool_bar"
+        android:layout_height="wrap_content"
+        android:background="@color/themeColor">
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/backtomenu"
+            android:src="@drawable/backtomenu"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="新歌排行榜"
+            android:textSize="20sp"
+            android:layout_marginLeft="20dp"/>
+
+    </android.support.v7.widget.Toolbar>
+
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/daily_recommend_wv">
+
+    </WebView>
+
+</LinearLayout>
