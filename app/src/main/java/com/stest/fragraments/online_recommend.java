@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.stest.neteasycloud.NewSongRanking;
 import com.stest.neteasycloud.R;
 import com.stest.neteasycloud.onlineRecommend;
+import com.stest.neteasycloud.recommendFmActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,7 +29,7 @@ import java.util.Date;
  * Use the {@link online_recommend#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class online_recommend extends Fragment implements OnClickListener  {
+public class online_recommend extends Fragment implements OnClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -80,17 +81,18 @@ public class online_recommend extends Fragment implements OnClickListener  {
         dateFm = new SimpleDateFormat("dd");
         return dateFm.format(date);
     }
+
     private View myview;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        myview=inflater.inflate(R.layout.recommend, container, false);
-        daily_text = (TextView)myview.findViewById(R.id.daily_text);
+        myview = inflater.inflate(R.layout.recommend, container, false);
+        daily_text = (TextView) myview.findViewById(R.id.daily_text);
         daily_btn = (ImageButton) myview.findViewById(R.id.daily_btn);
-        newsong_rank=(ImageButton)myview.findViewById(R.id.recommend_rank_newsong);
-        personnal_fm=(ImageButton) myview.findViewById(R.id.personal_fm);
+        newsong_rank = (ImageButton) myview.findViewById(R.id.recommend_rank_newsong);
+        personnal_fm = (ImageButton) myview.findViewById(R.id.personal_fm);
         daily_btn.setOnClickListener(this);
         daily_text.setText(getDate());
         newsong_rank.setOnClickListener(this);
@@ -126,28 +128,29 @@ public class online_recommend extends Fragment implements OnClickListener  {
 
     private ImageButton personnal_fm;
     private ImageButton newsong_rank;
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
 
             case R.id.daily_btn:
-                Intent in=new Intent(getActivity(),onlineRecommend.class);
+                Intent in = new Intent(getActivity(), onlineRecommend.class);
                 startActivity(in);
-               break;
+                break;
             case R.id.recommend_rank_newsong:
-                Intent in2=new Intent(getActivity(), NewSongRanking.class);
+                Intent in2 = new Intent(getActivity(), NewSongRanking.class);
                 startActivity(in2);
                 break;
-
-
-
+            case R.id.personal_fm:
+                Intent in3 = new Intent(getActivity(), recommendFmActivity.class);
+                startActivity(in3);
+                break;
 
             default:
                 break;
         }
 
     }
-
 
 
     /**

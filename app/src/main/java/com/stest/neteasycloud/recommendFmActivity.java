@@ -12,26 +12,26 @@ import android.widget.ImageView;
 
 import com.stest.OtherhelperClass.ConstantVarible;
 
-public class NewSongRanking extends AppCompatActivity implements View.OnClickListener {
+public class recommendFmActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ImageView backtomenu;
     private Toolbar toolbar;
-    private WebView newsongrank_wv;
-    private String THRURL="http://m.kugou.com/rank/list";
+    private WebView fm_wv;
+    private String THRURL="http://m.qingting.fm/categories/0";
     String lasturl;
     String returnMessage;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_song_ranking);
+        setContentView(R.layout.activity_recommend_fm);
         backtomenu=(ImageView)findViewById(R.id.backtomenu);
         toolbar=(Toolbar)findViewById(R.id.tool_bar);
-        newsongrank_wv =(WebView)findViewById(R.id.daily_recommend_wv);
+        fm_wv =(WebView)findViewById(R.id.daily_recommend_wv);
         backtomenu=(ImageView) findViewById(R.id.backtomenu);
         backtomenu.setOnClickListener(this);
-        returnMessage=newsongrank_wv.getUrl();
+        returnMessage=fm_wv.getUrl();
         toolbar.setBackgroundColor(ConstantVarible.CURRENTTHEMECOLOR);
-        newsongrank_wv.setWebViewClient(new WebViewClient()
+        fm_wv.setWebViewClient(new WebViewClient()
         {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -43,10 +43,10 @@ public class NewSongRanking extends AppCompatActivity implements View.OnClickLis
                 return true;
             }
         });
-        WebSettings setting= newsongrank_wv.getSettings();
+        WebSettings setting= fm_wv.getSettings();
         setting.setJavaScriptEnabled(true);
-        newsongrank_wv.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
-        newsongrank_wv.loadUrl(THRURL);
+        fm_wv.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
+        fm_wv.loadUrl(THRURL);
 
     }
 
@@ -64,10 +64,10 @@ public class NewSongRanking extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onBackPressed() {
         if(lasturl==null||lasturl.equals(returnMessage))
-        super.onBackPressed();
+            super.onBackPressed();
         else
         {
-            newsongrank_wv.loadUrl(lasturl);
+            fm_wv.loadUrl(lasturl);
         }
 
     }

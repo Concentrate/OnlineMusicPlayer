@@ -24,10 +24,11 @@ import com.stest.OtherhelperClass.UtilTool;
 public class onlineRecommend extends AppCompatActivity implements View.OnClickListener {
 
     private WebView daily_recommend_wv;
-    private String THRURL="http://m.y.qq.com";
+    private String THRURL="http://m.kugou.com/index/index";
     private Toolbar toolbar;
     private ImageView backtomenu;
     private String lasturl;
+    private String returnmessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +39,7 @@ public class onlineRecommend extends AppCompatActivity implements View.OnClickLi
         backtomenu=(ImageView) findViewById(R.id.backtomenu);
         backtomenu.setOnClickListener(this);
         toolbar.setBackgroundColor(ConstantVarible.CURRENTTHEMECOLOR);
+        returnmessage=daily_recommend_wv.getUrl();
 
         daily_recommend_wv.setWebViewClient(new WebViewClient()
         {
@@ -54,7 +56,6 @@ public class onlineRecommend extends AppCompatActivity implements View.OnClickLi
         });
         WebSettings setting=daily_recommend_wv.getSettings();
         setting.setJavaScriptEnabled(true);
-        setting.setBlockNetworkImage(true);
         daily_recommend_wv.setScrollBarStyle(View.SCROLLBARS_INSIDE_INSET);
         daily_recommend_wv.loadUrl(THRURL);
     }
@@ -72,7 +73,7 @@ public class onlineRecommend extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onBackPressed() {
-        if(lasturl==null)
+        if(lasturl==null||lasturl.equals(returnmessage))
         super.onBackPressed();
         else
         {

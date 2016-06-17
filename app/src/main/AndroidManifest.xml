@@ -37,8 +37,13 @@
             android:label="@string/title_activity_online_recommend"
             android:launchMode="singleTask"
             android:theme="@style/SplashTheme" />
-        <activity android:name=".NewSongRanking"
-            android:launchMode="singleTask"></activity>
+        <activity
+            android:name=".NewSongRanking"
+            android:launchMode="singleTask" />
+        <activity
+            android:name=".recommendFmActivity"
+            android:label="@string/title_activity_recommend_fm"
+            android:theme="@style/SplashTheme"></activity>
     </application>
 
 </manifest>
