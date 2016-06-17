@@ -8,6 +8,7 @@
     <color name="accent_material_light">@color/material_deep_teal_500</color>
     <color name="actionBtnPrs">#ffd9dbdc</color>
     <color name="actionbarTabUnselected">#D3D3D3</color>
+    <color name="tab_not_selected">#7D7D7D</color>
     <color name="addToPlayListDialogHeader">#ff303030</color>
     <color name="addToPlayListDisabled">#ff888888</color>
     <color name="addToPlayListNormal">#ff333333</color>
@@ -254,7 +255,10 @@
     <color name="tabShadow">#33000000</color>
     <color name="tabTextNormalColor">#ff666666</color>
     <color name="tagTextColor">#ff999999</color>
-    <color name="themeColor">#ffce3d3a</color>
+    <color name="themeColor3">#ffce3d3a</color>
+    <color name="themeColor">@color/themeColor1</color>
+    <color name="themeColor1">#ff009688</color>
+    <color name="themeColor2">#ffff6e6d</color>
     <color name="theme_color_Primary">#ffce3d3e</color>
     <color name="theme_color_PrimaryAccent">#ffce3d3e</color>
     <color name="theme_color_PrimaryDark">#ffa13b41</color>

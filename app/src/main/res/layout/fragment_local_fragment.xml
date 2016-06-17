@@ -10,19 +10,20 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/local_music_iv"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="20dp"
-            android:background="@drawable/local_phone"
-            android:backgroundTint="@android:color/holo_red_dark" />
+            android:src="@drawable/local_phone"
+           />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="本地音乐"
-            android:textColor="@android:color/black"
+            android:textColor="#7D7D7D"
             android:textSize="17sp" />
 
         <TextView
@@ -44,12 +45,13 @@
         android:layout_height="@dimen/music_itemsize"
         android:orientation="horizontal">
         <ImageView
+            android:id="@+id/recent_play_iv"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="20dp"
-            android:background="@drawable/recently"
-            android:backgroundTint="@android:color/holo_red_dark" />
+            android:src="@drawable/recently"
+          />
 
         <TextView
             android:layout_width="wrap_content"
@@ -57,7 +59,7 @@
             android:layout_gravity="center"
             android:text="最近播放"
 
-            android:textColor="@android:color/black"
+            android:textColor="#7D7D7D"
             android:textSize="17sp" />
 
         <TextView
@@ -80,12 +82,13 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/download_iv"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="20dp"
-            android:background="@drawable/downloadsong"
-            android:backgroundTint="@android:color/holo_red_dark" />
+            android:src="@drawable/downloadsong"
+            />
 
         <TextView
             android:layout_width="wrap_content"
@@ -93,7 +96,7 @@
             android:layout_gravity="center"
             android:text="下载管理"
 
-            android:textColor="@android:color/black"
+            android:textColor="#7D7D7D"
             android:textSize="17sp" />
 
         <TextView
@@ -116,12 +119,12 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/mysinger_iv"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="20dp"
-            android:background="@drawable/singer"
-            android:backgroundTint="@android:color/holo_red_dark"
+            android:src="@drawable/singer"
             />
 
         <TextView
@@ -130,7 +133,7 @@
             android:layout_gravity="center"
             android:text="我的歌手"
 
-            android:textColor="@android:color/black"
+            android:textColor="#7D7D7D"
             android:textSize="17sp" />
 
         <TextView

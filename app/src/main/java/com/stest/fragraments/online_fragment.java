@@ -19,6 +19,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.lidroid.xutils.ViewUtils;
+import com.stest.OtherhelperClass.ConstantVarible;
 import com.stest.adapter.AnchorAdapter;
 import com.stest.adapter.MyrankAdapter;
 import com.stest.neteasycloud.R;
@@ -157,11 +158,21 @@ public class online_fragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        int notselected_color=getResources().getColor(R.color.tab_not_selected);
+        tabLayout = (TabLayout) myview.findViewById(R.id.tabs);
+        tabLayout.setSelectedTabIndicatorColor(ConstantVarible.CURRENTTHEMECOLOR);
+        tabLayout.setTabTextColors(notselected_color,ConstantVarible.CURRENTTHEMECOLOR);
+    }
+
     private void initWidget() {
         myAcitivty = getActivity();
+        int notselected_color=getResources().getColor(R.color.tab_not_selected);
         tabLayout = (TabLayout) myview.findViewById(R.id.tabs);
-
-
+        tabLayout.setSelectedTabIndicatorColor(ConstantVarible.CURRENTTHEMECOLOR);
+        tabLayout.setTabTextColors(notselected_color,ConstantVarible.CURRENTTHEMECOLOR);
         recommend = myinflater.inflate(R.layout.recommend, null);
         list = myinflater.inflate(R.layout.list, null);
         anchor = myinflater.inflate(R.layout.anchor, null);

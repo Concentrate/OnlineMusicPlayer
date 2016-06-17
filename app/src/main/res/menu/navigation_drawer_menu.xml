@@ -11,18 +11,7 @@
     android:title="我的消息"
 
         />
-    <item
-    android:id="@+id/item_store"
-    android:icon="@mipmap/topmenu_icn_store"
-    android:title="积分商城" />
-    <item
-    android:id="@+id/item_member"
-    android:icon="@mipmap/topmenu_icn_member"
-    android:title="付费音乐包" />
-    <item
-    android:id="@+id/item_free"
-    android:icon="@mipmap/topmenu_icn_free"
-    android:title="在线听歌免流量" />
+
     </group>
 
     <group android:checkableBehavior="single"

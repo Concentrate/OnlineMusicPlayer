@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.stest.OtherhelperClass.ConstantVarible;
 import com.stest.neteasycloud.R;
 
 import java.util.ArrayList;
@@ -67,11 +68,22 @@ public class friends_fragment extends Fragment {
         return myview;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        int notselected_color=getResources().getColor(R.color.tab_not_selected);
+        tabLayout_friends.setSelectedTabIndicatorColor(ConstantVarible.CURRENTTHEMECOLOR);
+        tabLayout_friends.setTabTextColors(notselected_color,ConstantVarible.CURRENTTHEMECOLOR);
+    }
+
     private void initWidgets() {
         mViewList.clear();
         mTitleList.clear();
         view_pager_friends = (ViewPager) myview.findViewById(R.id.view_pager_in_friends);
         tabLayout_friends = (TabLayout) myview.findViewById(R.id.tabs_friends);
+        int notselected_color=getResources().getColor(R.color.tab_not_selected);
+        tabLayout_friends.setSelectedTabIndicatorColor(ConstantVarible.CURRENTTHEMECOLOR);
+        tabLayout_friends.setTabTextColors(notselected_color,ConstantVarible.CURRENTTHEMECOLOR);
         mTitleList.add("我的好友");
         mTitleList.add("附近的人");
         mTitleList.add("我的关注");

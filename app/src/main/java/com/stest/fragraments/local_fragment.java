@@ -9,11 +9,13 @@ import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.lidroid.xutils.view.annotation.ViewInject;
 import com.stest.DataClass.Mp3Info;
+import com.stest.OtherhelperClass.ConstantVarible;
 import com.stest.OtherhelperClass.UtilTool;
 import com.stest.neteasycloud.R;
 import com.stest.neteasycloud.local_music_listActivity;
@@ -74,6 +76,21 @@ public class local_fragment extends Fragment implements View.OnClickListener {
 
 
     }
+
+    @Override
+    public void onResume() {
+        int color=ConstantVarible.CURRENTTHEMECOLOR;
+        super.onResume();
+        ImageView local_iv=(ImageView)myview.findViewById(R.id.local_music_iv);
+        ImageView recently_iv=(ImageView)myview.findViewById(R.id.recent_play_iv);
+        ImageView download_iv=(ImageView)myview.findViewById(R.id.download_iv);
+        ImageView mysinger_iv=(ImageView)myview.findViewById(R.id.mysinger_iv);
+        local_iv.setColorFilter(color);
+        recently_iv.setColorFilter(color);
+        download_iv.setColorFilter(color);
+        mysinger_iv.setColorFilter(color);
+    }
+
     private void initWidget() {
         local_music=(LinearLayout)myview.findViewById(R.id.local_music);
         recent_music_ll=(LinearLayout)myview.findViewById(R.id.recent_play);
@@ -84,8 +101,18 @@ public class local_fragment extends Fragment implements View.OnClickListener {
         downloadNum=(TextView)myview.findViewById(R.id.download_song_num);
         mysingerNum=(TextView)myview.findViewById(R.id.mysingernum);
         songlist= UtilTool.getMp3Infos(getActivity());
+        int color=ConstantVarible.CURRENTTHEMECOLOR;
+        ImageView local_iv=(ImageView)myview.findViewById(R.id.local_music_iv);
+        ImageView recently_iv=(ImageView)myview.findViewById(R.id.recent_play_iv);
+        ImageView download_iv=(ImageView)myview.findViewById(R.id.download_iv);
+        ImageView mysinger_iv=(ImageView)myview.findViewById(R.id.mysinger_iv);
+        local_iv.setColorFilter(color);
+        recently_iv.setColorFilter(color);
+        download_iv.setColorFilter(color);
+        mysinger_iv.setColorFilter(color);
+
         if(songlist!=null)
-            localMusicNum.setText(songlist.size()+"");
+            localMusicNum.setText("("+songlist.size()+")");
 
     }
 

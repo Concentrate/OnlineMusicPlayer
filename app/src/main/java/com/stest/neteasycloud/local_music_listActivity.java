@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -66,6 +67,8 @@ public class local_music_listActivity extends AppCompatActivity implements View.
     TextView song_name_tv;
     @ViewInject(R.id.music_artist)
     TextView artist_tv;
+    @ViewInject(R.id.tool_bar)
+    Toolbar toolbar;
     private boolean isPause = true;
     private List<Mp3Info> songlist;
     private BroadcastReceiver Local_MusiclistReceiver;
@@ -142,6 +145,7 @@ public class local_music_listActivity extends AppCompatActivity implements View.
         play_more.setOnClickListener(this);
         next_song.setOnClickListener(this);
         songlist = UtilTool.getMp3Infos(this);
+        toolbar.setBackgroundColor(ConstantVarible.CURRENTTHEMECOLOR);
         popInfos = new ArrayList<>();
         for (int i = 0; i < songlist.size(); i++) {
             Map<String, Object> item = new HashMap<>();

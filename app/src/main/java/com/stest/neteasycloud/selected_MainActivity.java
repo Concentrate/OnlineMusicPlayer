@@ -16,11 +16,13 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -28,6 +30,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lidroid.xutils.ViewUtils;
 import com.lidroid.xutils.view.annotation.ViewInject;
@@ -171,7 +174,11 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
     private void LocalInitData() {
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(this);
         currentPlayItem = sh.getInt(CurrentItem, 0);
-
+        int color=sh.getInt("color",getResources().getColor(R.color.themeColor));
+        ConstantVarible.CURRENTTHEMECOLOR=color;
+        currentcolor=sh.getInt("colorItem",0);
+        mDrawerLayout.setBackgroundColor(ConstantVarible.CURRENTTHEMECOLOR);
+        toolbar.setBackgroundColor(ConstantVarible.CURRENTTHEMECOLOR);
 
     }
 
@@ -203,13 +210,17 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
         helperClass = new GetLocalSong(this);
         localmusiclist = helperClass.getMp3Info();
 
+
     }
 
-    private static int currentPlayItem = 0;
 
+    private static int currentPlayItem = 0;
     public static int getCurrentPlayItem() {
         return currentPlayItem;
     }
+    private int []colorskin=new int [3];
+    private int currentcolor=0;
+
 
     private void initEvent() {
         bar_disco.setOnClickListener(this);
@@ -230,7 +241,32 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
 
             }
         });
+        colorskin[0]=getResources().getColor(R.color.themeColor1);
+        colorskin[1]=getResources().getColor(R.color.themeColor2);
+        colorskin[2]=getResources().getColor(R.color.themeColor3);
         //加载PopWindow布局
+        mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(MenuItem item) {
+                switch (item.getItemId())
+                {
+                    case R.id.item_skin:
+                      currentcolor=(currentcolor+1)%3;
+                        ConstantVarible.CURRENTTHEMECOLOR=colorskin[currentcolor];
+                        mDrawerLayout.setBackgroundColor(ConstantVarible.CURRENTTHEMECOLOR);
+                        toolbar.setBackgroundColor(ConstantVarible.CURRENTTHEMECOLOR);
+                        BeforeLeaveStore();
+                        break;
+
+
+
+
+
+                }
+             return false;
+            }
+        });
+
 
 
         for (int i = 0; i < localmusiclist.size(); i++) {
@@ -259,6 +295,7 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
         play_btn.setOnClickListener(this);
         bottom_music_more.setOnClickListener(this);
         bottom_music_ll.setOnClickListener(this);
+
         mDrawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
             public void onDrawerSlide(View drawerView, float slideOffset) {
@@ -286,8 +323,7 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
             @Override
             public void onClick(View v) {
                 if (!isopen) {
-                    //LEFT和RIGHT指的是现存DrawerLayout的方向
-                    mDrawerLayout.openDrawer(Gravity.LEFT);
+                    mDrawerLayout.openDrawer(GravityCompat.START);
                     isopen = true;
                 }
 
@@ -298,6 +334,8 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
 
 
     }
+
+
 
     private boolean isFirstPlay = true;
     private Intent serviceIntent;
@@ -418,6 +456,10 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor e = sh.edit();
         e.putInt(CurrentItem, currentPlayItem);
+        if(colorskin!=null) {
+            e.putInt("color", colorskin[currentcolor]);//the color value
+            e.putInt("colorItem", currentcolor);//被选择的color的顺序
+        }
         e.commit();
 
     }

@@ -18,4 +18,6 @@ public class ConstantVarible {
     public static final String MUSIC_DURATION = "com.action.MUSIC_DURATION";//新音乐长度更新动作
     public  static final String MUSIC_SHUFFSTATE="com.action.SHUFF_STATE";
     public static final int SEEKTO =6 ;
+    public static int CURRENTTHEMECOLOR=0xff009688;
+
 }
