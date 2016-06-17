@@ -329,6 +329,7 @@ public class selected_MainActivity extends FragmentActivity implements View.OnCl
         });
         main_selectedAdapter myadapter = new main_selectedAdapter(myfragmentmanager, listfragments);
         view_pager.setAdapter(myadapter);
+        view_pager.setOffscreenPageLimit(3);
 
 
     }

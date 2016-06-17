@@ -1,3 +1,5 @@
-#仿网易云音乐界面效果
+音乐播放器
+界面较为美观
+功能还有待完善
+author ldy
 
- ![](http://upload-images.jianshu.io/upload_images/912181-4e36f164a0de0329.jpg?imageMogr2/auto-orient/strip)

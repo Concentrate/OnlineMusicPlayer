@@ -92,7 +92,6 @@ public class friends_fragment extends Fragment {
         mViewList.add(myinflater.inflate(R.layout.friendsmodel_friends,null));
         mViewList.add(myinflater.inflate(R.layout.friends_local,null));
         mViewList.add(myinflater.inflate(R.layout.friendsmodel_payattation,null));
-
         //添加TabLayout上的文本元素
         tabLayout_friends.addTab(tabLayout_friends.newTab().setText(mTitleList.get(0)));
         tabLayout_friends.addTab(tabLayout_friends.newTab().setText(mTitleList.get(1)));
@@ -123,9 +122,9 @@ public class friends_fragment extends Fragment {
                                                        }
                                                    }
         );
-//        tabLayout_friends.getTabAt(0).setText("我的好友");
-//        tabLayout_friends.getTabAt(0).setText("附近的人");
-//        tabLayout_friends.getTabAt(0).setText("我的关注");
+        tabLayout_friends.getTabAt(0).setText("我的好友");
+        tabLayout_friends.getTabAt(0).setText("附近的人");
+        tabLayout_friends.getTabAt(0).setText("我的关注");
 
     }
 
